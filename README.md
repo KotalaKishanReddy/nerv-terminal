@@ -3,39 +3,45 @@
 > *"God's in His heaven. All's right with the world."*
 
 A Neon Genesis Evangelion themed TUI that runs entirely in your terminal.  
-Inspired by the MAGI supercomputer system — CASPAR, BALTHASAR, MELCHIOR.
+Inspired by the MAGI supercomputer — CASPAR, BALTHASAR, MELCHIOR.
 
 ---
 
-## One-line install (Linux / macOS)
+## ⚡ Install
 
+### Linux / macOS
 ```bash
 curl -fsSL https://raw.githubusercontent.com/KotalaKishanReddy/nerv-terminal/main/install.sh | bash
 ```
-
 Then run:
 ```bash
 nerv
 ```
 
-> Updates are **automatic** — every launch silently checks GitHub for a newer version and hot-swaps it before starting.
+---
+
+### Windows — PowerShell
+```powershell
+Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned -Force
+irm https://raw.githubusercontent.com/KotalaKishanReddy/nerv-terminal/main/install.ps1 | iex
+```
+Then run (after restarting terminal):
+```
+nerv
+```
 
 ---
 
-## Manual install (any OS)
-
-```bash
-git clone https://github.com/KotalaKishanReddy/nerv-terminal.git
-cd nerv-terminal
-pip install -r requirements.txt
-python run.py          # auto-update then launch
-# or directly:
-python nerv.py
+### Windows — CMD (no PowerShell)
+```cmd
+curl -fsSL https://raw.githubusercontent.com/KotalaKishanReddy/nerv-terminal/main/install.ps1 -o install.ps1
+powershell -ExecutionPolicy Bypass -File install.ps1
 ```
 
-## Windows (PowerShell)
+---
 
-```powershell
+### Manual (any OS)
+```bash
 git clone https://github.com/KotalaKishanReddy/nerv-terminal.git
 cd nerv-terminal
 pip install -r requirements.txt
@@ -44,19 +50,41 @@ python run.py
 
 ---
 
-## What it does
+### pip (any OS)
+```bash
+pip install git+https://github.com/KotalaKishanReddy/nerv-terminal.git
+nerv
+```
+
+---
+
+> **Updates are automatic** — every launch silently checks GitHub for a newer version and hot-swaps before starting. No cron, no daemons.
+
+---
+
+## Screens
 
 | Screen | Description |
 |---|---|
-| **NERV Splash** | Full block-logo, braille EVA art, blinking amber prompt |
-| **Password gate** | Dot-masked input; wrong → `W` bruteforce / `R` retry |
-| **MAGI Bruteforce** | 10-min live bars, CASPAR/BALTHASAR/MELCHIOR votes, hex stream; **ESC locked**; rick-rolls at 10:00 |
+| **NERV Splash** | Block logo, braille EVA art, blinking amber prompt |
+| **Password gate** | Dot-masked input — password: `21SEP` |
+| **MAGI Bruteforce** | 10-min bars, CASPAR/BALTHASAR/MELCHIOR votes, hex stream; **ESC locked**; rick-rolls at 10:00 |
 | **P & Q entry** | RSA prime inputs → AES-CBC decrypt of `Encrypted.txt` |
-| **Decrypted view** | Shows plaintext output |
-| **Terms & Conditions** | YES → Instagram T&C (Chinese); NO → YouTube T&C (Japanese) |
-| **YES / NO** | Both paths end with a rick-roll |
+| **Decrypted view** | Shows plaintext |
+| **Terms & Conditions** | YES → Instagram T&C in Chinese; NO → YouTube T&C in Japanese |
+| **YES / NO** | Both paths end in a rick-roll |
 
-**Password:** `21SEP`
+---
+
+## Auto-update architecture
+
+```
+nerv  (launcher)
+  └─ run.py
+       ├─ nerv_terminal/updater.py  ← polls GitHub API (max 1×/hr)
+       │       └─ new SHA? → downloads nerv.py → hot-swaps
+       └─ os.execv → nerv.py
+```
 
 ---
 
@@ -65,20 +93,6 @@ python run.py
 - Python 3.8+
 - `blessed` — terminal rendering
 - `pycryptodome` — AES decrypt
-
----
-
-## Auto-update architecture
-
-```
-nerv (launcher)
-  └─ run.py
-       ├─ nerv_terminal/updater.py  ← polls GitHub API (max 1×/hour)
-       │       └─ if new SHA → downloads nerv.py → hot-swaps it
-       └─ os.execv → nerv.py        ← always runs latest
-```
-
-No background daemons. No cron jobs. Pure Python stdlib network call.
 
 ---
 
