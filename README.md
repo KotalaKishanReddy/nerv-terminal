@@ -1,99 +1,50 @@
-# 🔴 NERV Terminal
+# 🔴 NERV Terminal Interface
 
-**Neon Genesis Evangelion themed terminal launcher — one command, zero setup**
+> *"God's in his heaven, all's right with the world."*
 
-```
-███████████████████████████████████████████
-█  NERV // GEHIRN ADVANCED RESEARCH        █
-█  MAGI SYSTEM v3.0 | TOKYO-3 NETWORK      █
-███████████████████████████████████████████
-```
+A Neon Genesis Evangelion themed TUI launcher built with Python + `blessed`.
+Braille ASCII art sourced from [emojicombos.com/evangelion-ascii-art](https://emojicombos.com/evangelion-ascii-art).
 
----
+[![CI](https://github.com/KotalaKishanReddy/nerv-terminal/actions/workflows/ci.yml/badge.svg)](https://github.com/KotalaKishanReddy/nerv-terminal/actions)
+[![PyPI](https://img.shields.io/pypi/v/nerv-terminal)](https://pypi.org/project/nerv-terminal/)
 
-## ⚡ One-liner (curl | bash)
+## Install
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/KotalaKishanReddy/nerv-terminal/main/setup.sh | bash
+pip install nerv-terminal
+nerv
 ```
 
-That's it. No `pip install`, no venv setup, no cloning. Paste and watch it boot.
-
----
-
-## Manual install (clone)
+Or run from source:
 
 ```bash
 git clone https://github.com/KotalaKishanReddy/nerv-terminal
 cd nerv-terminal
-bash setup.sh
+pip install -e .
+nerv
 ```
 
----
+## Controls
 
-## What `setup.sh` does
-
-1. Detects your Python 3 installation
-2. Downloads the repo (if run via curl) or uses the local clone
-3. Creates an isolated `.venv` — **no system packages touched** (fixes Arch `externally-managed-environment`)
-4. Installs `blessed` + `pyfiglet` inside the venv
-5. Launches `nerv.py` automatically
-
----
+| Key | Action |
+|-----|--------|
+| `SPACE` | Splash → Pilot Interface |
+| `Q` / `ESC` | Quit |
 
 ## Requirements
 
 - Python 3.8+
-- Terminal with truecolor support:
-  - ✅ Kitty, Alacritty, WezTerm, Windows Terminal, iTerm2
-  - ✅ WSL (Windows Terminal recommended)
-  - ⚠️ Old `cmd.exe` — limited color
+- Truecolor terminal: Kitty · Alacritty · WezTerm · Windows Terminal (WSL)
 
----
+## Release to PyPI
 
-## Controls
+```bash
+git tag v1.0.0
+git push origin v1.0.0
+```
 
-### Screen 1 — NERV Splash
-| Key | Action |
-|-----|--------|
-| `SPACE` | Enter Pilot Interface |
-| `ESC` | Exit |
-
-### Screen 2 — Pilot Interface
-| Key | Action |
-|-----|--------|
-| `A` | Activate EVA Unit |
-| `S` | Sync Uplink |
-| `D` | Tactical Display |
-| `M` | MAGI Query |
-| `Q` / `ESC` | Exit |
-
----
-
-## Features
-
-**Screen 1 — NERV Splash**
-- Full-screen hex scanline noise background
-- Giant ASCII `NERV` logo (`pyfiglet` banner3 font)
-- Classification text: `MAGI SYSTEM v3.0 | TOKYO-3 TACTICAL NETWORK`
-- Blinking amber `[ PRESS SPACE TO INITIALIZE PILOT INTERFACE ]` prompt
-
-**Screen 2 — Pilot Interface**
-- Left panel: EVA-01 silhouette + sync ratio bar
-- Right panel: Animated Shinji head (blink / tilt / look-right at 180ms)
-- Center panel: Pilot data table + command menu
-- Bottom ticker: Live MAGI status + session timer
-
----
-
-## Dependencies
-
-| Library | Purpose |
-|---------|--------|
-| `blessed` | Terminal UI — colors, positioning, fullscreen, keyboard |
-| `pyfiglet` | ASCII art font rendering for NERV logo |
-
----
+Set up PyPI Trusted Publisher at https://pypi.org/manage/account/publishing/
 
 ## License
+
 MIT
