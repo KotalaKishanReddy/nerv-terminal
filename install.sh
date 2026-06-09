@@ -14,66 +14,88 @@ echo -e "${RED}  ██╔██╗ ██║█████╗  █████
 echo -e "${RED}  ██║╚██╗██║██╔══╝  ██╔══██╗╚██╗ ██╔╝${RESET}"
 echo -e "${RED}  ██║ ╚████║███████╗██║  ██║ ╚████╔╝ ${RESET}"
 echo -e "${RED}  ╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝  ╚═══╝  ${RESET}"
-echo -e "${DIM}  GEHIRN ADVANCED RESEARCH — INSTALLER v1.0${RESET}"
+echo -e "${DIM}  GEHIRN ADVANCED RESEARCH — INSTALLER v1.1${RESET}"
 echo
 
-# ── dependency check ──────────────────────────────────────────────────────────
-check() {
-  command -v "$1" &>/dev/null
-}
+cmd()  { command -v "$1" &>/dev/null; }
+ok()   { echo -e "${GREEN}  [ ✓ ] $*${RESET}"; }
+warn() { echo -e "${AMBER}  [ * ] $*${RESET}"; }
+err()  { echo -e "${RED}  [ ! ] $*${RESET}"; }
 
-echo -e "${AMBER}  [ * ] Checking dependencies...${RESET}"
-
-if ! check python3; then
-  echo -e "${RED}  [ ! ] python3 not found. Install Python 3.8+ first.${RESET}"
-  exit 1
+# ── python check ──────────────────────────────────────────────────────────────
+warn "Checking dependencies..."
+if ! cmd python3; then
+  err "python3 not found. Install Python 3.8+ first."; exit 1
 fi
-
 PYVER=$(python3 -c 'import sys; print(sys.version_info.minor)')
 if [ "$PYVER" -lt 8 ]; then
-  echo -e "${RED}  [ ! ] Python 3.8+ required. Found 3.${PYVER}.${RESET}"
-  exit 1
+  err "Python 3.8+ required. Found 3.${PYVER}."; exit 1
 fi
-
-if ! check pip3 && ! check pip; then
-  echo -e "${RED}  [ ! ] pip not found. Install pip first.${RESET}"
-  exit 1
-fi
-
-PIP=$(check pip3 && echo pip3 || echo pip)
-
-echo -e "${GREEN}  [ ✓ ] Python 3.${PYVER} found${RESET}"
-
-# ── install python deps ────────────────────────────────────────────────────────
-echo -e "${AMBER}  [ * ] Installing Python packages (blessed, pyfiglet)...${RESET}"
-$PIP install --quiet --upgrade blessed pyfiglet
-echo -e "${GREEN}  [ ✓ ] Packages installed${RESET}"
+ok "Python 3.${PYVER} found"
 
 # ── download nerv.py ──────────────────────────────────────────────────────────
+RAW="https://raw.githubusercontent.com/KotalaKishanReddy/nerv-terminal/main/nerv.py"
+warn "Downloading nerv.py..."
+if cmd curl; then
+  curl -fsSL "$RAW" -o "/tmp/nerv_main.py"
+elif cmd wget; then
+  wget -qO "/tmp/nerv_main.py" "$RAW"
+else
+  err "Neither curl nor wget found."; exit 1
+fi
+ok "Downloaded nerv.py"
+
+# ── detect if pip is externally managed (Arch, Ubuntu 23+, etc.) ─────────────
+PIP_BIN=""
+cmd pip3 && PIP_BIN="pip3" || true
+[ -z "$PIP_BIN" ] && cmd pip && PIP_BIN="pip" || true
+
+USE_VENV=0
+if [ -n "$PIP_BIN" ]; then
+  # test if pip will refuse due to PEP 668
+  if $PIP_BIN install --dry-run --quiet blessed 2>&1 | grep -q 'externally-managed'; then
+    USE_VENV=1
+  fi
+else
+  USE_VENV=1
+fi
+
+VENV="$HOME/.local/share/nerv-venv"
 DEST="$HOME/.local/bin/nerv"
 mkdir -p "$HOME/.local/bin"
 
-echo -e "${AMBER}  [ * ] Downloading nerv.py...${RESET}"
-
-if check curl; then
-  curl -fsSL "https://raw.githubusercontent.com/KotalaKishanReddy/nerv-terminal/main/nerv.py" -o "$DEST"
-elif check wget; then
-  wget -qO "$DEST" "https://raw.githubusercontent.com/KotalaKishanReddy/nerv-terminal/main/nerv.py"
+if [ "$USE_VENV" -eq 1 ]; then
+  warn "System pip is externally managed — using isolated venv..."
+  warn "Creating venv at ${VENV}..."
+  python3 -m venv "$VENV"
+  "$VENV/bin/pip" install --quiet --upgrade blessed pyfiglet
+  cp /tmp/nerv_main.py "$VENV/nerv.py"
+  # write a tiny bash launcher that uses the venv python
+  cat > "$DEST" << LAUNCHER
+#!/usr/bin/env bash
+exec "$VENV/bin/python3" "$VENV/nerv.py" "\$@"
+LAUNCHER
+  chmod +x "$DEST"
 else
-  echo -e "${RED}  [ ! ] Neither curl nor wget found. Cannot download.${RESET}"
-  exit 1
+  warn "Installing packages (blessed, pyfiglet)..."
+  $PIP_BIN install --quiet --upgrade blessed pyfiglet
+  cp /tmp/nerv_main.py "$DEST"
+  chmod +x "$DEST"
+  # ensure shebang is correct
+  sed -i '1s|.*|#!/usr/bin/env python3|' "$DEST"
 fi
 
-chmod +x "$DEST"
-echo -e "${GREEN}  [ ✓ ] Installed to ${DEST}${RESET}"
+ok "Packages installed"
+ok "Launcher written to ${DEST}"
 
-# ── PATH check ────────────────────────────────────────────────────────────────
+# ── PATH reminder ──────────────────────────────────────────────────────────────
 if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
   echo
-  echo -e "${AMBER}  [ ! ] Add this to your shell config (~/.bashrc or ~/.zshrc):${RESET}"
+  warn "~/.local/bin is not in your PATH. Add this to ~/.bashrc or ~/.zshrc:"
   echo -e "${DIM}        export PATH=\"\$HOME/.local/bin:\$PATH\"${RESET}"
-  echo
+  warn "Then reload:  source ~/.bashrc"
 fi
 
-echo -e "${GREEN}  [ ✓ ] Done. Run:  nerv${RESET}"
+echo
+ok "Done! Run:  nerv"
 echo
