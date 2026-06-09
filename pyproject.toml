@@ -1,10 +1,10 @@
 [build-system]
 requires = ["setuptools>=68", "wheel"]
-build-backend = "setuptools.backends.legacy:build"
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "nerv-terminal"
-version = "2.0.0"
+version = "2.0.1"
 description = "Neon Genesis Evangelion themed TUI — NERV HQ in your terminal"
 readme = "README.md"
 license = { text = "MIT" }

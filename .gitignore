@@ -10,3 +10,5 @@ venv/
 *.egg
 *.whl
 .DS_Store
+.nerv_last_sha
+*.tmp
