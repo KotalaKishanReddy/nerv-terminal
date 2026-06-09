@@ -34,56 +34,57 @@ BUF_MAX       = 256
 
 # ─────────────────────────────────────────────────────────────────────────────
 LOGO = [
-    '\u2588\u2588\u2588\u2557   \u2588\u2588\u2557\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2557\u2588\u2588\u2588\u2588\u2588\u2588\u2557 \u2588\u2588\u2557   \u2588\u2588\u2557',
-    '\u2588\u2588\u2588\u2588\u2557  \u2588\u2588\u2551\u2588\u2588\u2554\u2550\u2550\u2550\u2550\u255d\u2588\u2588\u2554\u2550\u2550\u2588\u2588\u2557\u2588\u2588\u2551   \u2588\u2588\u2551',
-    '\u2588\u2588\u2554\u2588\u2588\u2557 \u2588\u2588\u2551\u2588\u2588\u2588\u2588\u2588\u2557  \u2588\u2588\u2588\u2588\u2588\u2588\u2554\u255d\u2588\u2588\u2551   \u2588\u2588\u2551',
-    '\u2588\u2588\u2551\u255a\u2588\u2588\u2557\u2588\u2588\u2551\u2588\u2588\u2554\u2550\u2550\u255d  \u2588\u2588\u2554\u2550\u2550\u2588\u2588\u2557\u255a\u2588\u2588\u2557 \u2588\u2588\u2554\u255d',
-    '\u2588\u2588\u2551 \u255a\u2588\u2588\u2588\u2588\u2551\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2557\u2588\u2588\u2551  \u2588\u2588\u2551 \u255a\u2588\u2588\u2588\u2588\u2554\u255d ',
-    '\u255a\u2550\u255d  \u255a\u2550\u2550\u2550\u255d\u255a\u2550\u2550\u2550\u2550\u2550\u2550\u255d\u255a\u2550\u255d  \u255a\u2550\u255d  \u255a\u2550\u2550\u2550\u255d  ',
+    '███╗   ██╗███████╗██████╗ ██╗   ██╗',
+    '████╗  ██║██╔════╝██╔══██╗██║   ██║',
+    '██╔██╗ ██║█████╗  ██████╔╝██║   ██║',
+    '██║╚██╗██║██╔══╝  ██╔══██╗╚██╗ ██╔╝',
+    '██║ ╚████║███████╗██║  ██║ ╚████╔╝ ',
+    '╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝  ╚═══╝  ',
 ]
 
-# Full braille ASCII art — 36 rows x 48 cols
+# Exact braille art from art.txt — all 46 rows, 60 chars wide
 BIG_ART = [
-    '\u28ff\u28ff\u28ff\u28bf\u28ff\u28bf\u28ff\u28b5\u28be\u28ff\u28ff\u2600\u28ff\u28b6\u28f7\u28bf\u2820\u28bb\u28be\u28ff\u2807\u28ae\u2821\u28b5\u2866\u28bf\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28b6\u28ae\u2809\u28bb\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28b7\u2849\u28bb\u28ff\u28ff',
-    '\u28ff\u289f\u2820\u280b\u28a0\u287f\u28fb\u287f\u28cb\u28b5\u28be\u28ff\u283f\u28a1\u287e\u28f9\u287f\u28a3\u28a4\u28ff\u28b7\u28a4\u2861\u28bf\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28b7\u28a4\u2808\u283b\u283f\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28b7\u28bd\u28b7\u285d\u28bf\u28ff\u28ff',
-    '\u28ff\u2801\u28a0\u28be\u28af\u28be\u28ff\u28ff\u283f\u28b5\u28ff\u28ab\u28be\u28ff\u28a3\u28ff\u28ff\u287f\u28ff\u287f\u28ff\u28ff\u28ff\u28ae\u283b\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u285d\u283f\u28b7\u28a4\u2800\u2808\u28bf\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28bf\u28b7\u28bd\u28bf',
-    '\u2803\u28bc\u28ff\u28ff\u28ff\u28ff\u283f\u2861\u283f\u28fb\u280d\u287d\u280b\u2807\u28ff\u28ff\u283f\u2818\u28ff\u28a7\u2818\u28ff\u28ff\u28ff\u28b7\u2861\u28ff\u28ff\u28ff\u28ff\u2807\u28ff\u28b7\u28b6\u287f\u283f\u2832\u2834\u2861\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u280e\u28bf\u28ff\u28a7',
-    '\u28be\u28ff\u28ff\u28ff\u287f\u280b\u28a4\u28a7\u2818\u287f\u2801\u28a4\u28ff\u2818\u28ff\u287f\u28bc\u28ff\u28ff\u28ff\u28a4\u28bb\u28ff\u28ff\u28ff\u28b7\u28ac\u28bf\u28ff\u28ff\u28b7\u2819\u28ff\u280f\u2808\u28be\u28b7\u28ac\u2800\u28ff\u28ff\u28be\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff',
-    '\u28ff\u28ff\u28ff\u28af\u28be\u28ff\u280b\u2801\u283e\u28a4\u28ff\u28ff\u2807\u28be\u28ff\u28a0\u28ff\u28ff\u28ff\u28ff\u28ff\u280e\u28ff\u28ff\u28ff\u28ff\u28ff\u280e\u28bb\u28ff\u28ff\u28a7\u283b\u28ff\u28a6\u2828\u285b\u28bf\u28b7\u28ac\u28bb\u28ff\u2806\u28bf\u28ff\u28ff\u28ff\u28ff\u28ff',
-    '\u28ff\u28ff\u28ff\u28ff\u28ff\u283f\u28a4\u280b\u28bc\u28bb\u28ff\u28ff\u2807\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28be\u28ff\u28ff\u28ff\u28ff\u28ff\u28a6\u28bb\u28ff\u28ff\u28b7\u2861\u28bf\u28a6\u283b\u28a6\u2861\u2801\u2819\u28ff\u2838\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff',
-    '\u28ff\u28ff\u28ff\u28ff\u28ff\u2800\u2801\u28be\u28ff\u2818\u28ff\u28ff\u2800\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28a7\u28bb\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u280f\u28bf\u28ff\u2839\u28ff\u280e\u283b\u2807\u2818\u28ff\u28a7\u28a0\u2804\u28ff\u2807\u28ff\u28ff\u28ff\u28ff\u28ff',
-    '\u28ff\u28ff\u280c\u28ff\u283f\u28a0\u28ff\u28ff\u28ff\u2818\u28ff\u287f\u2800\u28bb\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u280e\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u2807\u2818\u28ff\u2800\u28bb\u28ff\u28b7\u28a4\u2861\u283f\u28bf\u28bd\u2807\u28ff\u2807\u28ff\u28ff\u28bb\u28ff\u28ff',
-    '\u28ff\u28ff\u28ff\u28a4\u2830\u28bf\u28ff\u28ff\u28ff\u2808\u28ff\u2807\u2800\u2800\u28bf\u285d\u28ff\u28ff\u28bf\u28ff\u28ff\u28ff\u28ff\u2861\u28ff\u28ff\u28ff\u2818\u28ff\u2803\u2818\u287f\u28b8\u2806\u283b\u28ff\u28a7\u2819\u287f\u28b6\u28a4\u28be\u28ff\u2807\u28ff\u28ff\u28a0\u2861\u28bb',
-    '\u28ff\u28ff\u28ff\u289f\u28be\u28ff\u28ff\u28b7\u2861\u28b3\u28be\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28b7\u28be\u28ff\u28ff\u28ff\u28ff\u28ff\u28b7\u283b\u28bf\u28ff\u28ff\u28ff\u28ff\u28ff\u28b7\u2861\u283b\u28ff\u28ff\u28ff',
-    '\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff',
-    '\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff',
-    '\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff',
-    '\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff',
-    '\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff',
-    '\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff',
-    '\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff',
-    '\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff',
-    '\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff',
-    '\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff',
-    '\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff',
-    '\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff',
-    '\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff',
-    '\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff',
-    '\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff',
-    '\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff',
-    '\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff',
-    '\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff',
-    '\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff',
-    '\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff',
-    '\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff',
-    '\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff',
-    '\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff',
-    '\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff',
-    '\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff',
-    '\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff',
+    '⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢿⢿⣿⢿⢿⢿⣿⣿⢿⢿⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿',
+    '⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢟⣛⣫⣭⢵⢶⢶⢾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢶⣬⢛⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿',
+    '⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢿⣥⢶⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢟⣿⢟⣿⣿⣿⣿⣿⣿⣿⢶⢨⢛⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿',
+    '⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢟⢱⣿⣿⣿⢟⣫⣿⣿⣿⣿⣿⣿⣿⣛⢀⣿⠇⣥⠉⢿⣿⢝⢿⣿⣿⣿⢶⢧⠹⢶⣭⡝⢟⣿⣿⣿⣿⣿',
+    '⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢟⣫⢴⣿⣿⣿⠋⢾⣿⣿⣿⣿⣿⣿⣿⠋⢾⢷⠲⢣⣿⣿⣥⠉⢿⠄⠉⢿⣿⠎⠉⢿⣿⣿⣿⢷⡁⣭⣿⣿⣿',
+    '⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢟⢴⣿⣿⣿⣿⢥⣿⣿⣿⣿⣿⢿⠀⢟⠁⣿⣿⣿⢧⣨⣿⣿⣿⣿⣥⠁⠰⠎⢛⣿⣥⠲⢝⣿⢷⠈⣿⣿⣿⣿⣿',
+    '⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢟⠘⣿⣿⣿⣿⢟⠜⢼⣿⢛⢴⠐⢟⠆⢿⠂⣿⣿⣿⣿⣿⣿⣿⣿⢾⣿⣿⣿⣿⣿⢦⢻⣿⣿⢷⡡⢿⢦⠻⢦⡡⠁',
+    '⣿⣿⣿⣿⣿⢟⢿⣿⣿⣿⣿⣿⢟⣿⣿⣿⣿⣿⣿⣿⣿⢧⢻⣿⣿⣿⣿⣿⣿⠏⢿⣿⠹⣿⠎⠻⠇⠘⣿⢧⢠⠄⣿⠇⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿',
+    '⣿⣿⣿⣿⣿⣿⣿⢤⠰⢿⣿⣿⣿⠈⣿⠇⠀⠀⢿⡝⣿⣿⢿⣿⣿⣿⣿⡡⣿⣿⣿⠘⣿⠃⠘⡿⢸⠆⠻⣿⢧⠙⡿⢶⢤⢾⣿⠇⣿⣿⢠⡡⢻⣿⣿⣿⣿⣿⣿⣿',
+    '⣿⣿⣿⢟⢾⣿⣿⢷⡡⢳⢾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢷⢾⣿⣿⣿⣿⣿⢷⠻⢿⣿⣿⣿⣿⣿⢷⡡⠻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿',
+    '⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿',
+    '⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢟⣛⣫⣭⢵⢶⢶⢾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢶⣬⢛⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿',
+    '⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢿⣥⢶⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢟⣿⢟⣿⣿⣿⣿⣿⣿⣿⢶⢨⢛⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿',
+    '⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢟⢱⣿⣿⣿⢟⣫⣿⣿⣿⣿⣿⣿⣿⣛⢀⣿⠇⣥⠉⢿⣿⢝⢿⣿⣿⣿⢶⢧⠹⢶⣭⡝⢟⣿⣿⣿⣿⣿',
+    '⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢟⣫⢴⣿⣿⣿⠋⢾⣿⣿⣿⣿⣿⣿⣿⠋⢾⢷⠲⢣⣿⣿⣥⠉⢿⠄⠉⢿⣿⠎⠉⢿⣿⣿⣿⢷⡁⣭⣿⣿⣿',
+    '⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢟⢴⣿⣿⣿⣿⢥⣿⣿⣿⣿⣿⢿⠀⢟⠁⣿⣿⣿⢧⣨⣿⣿⣿⣿⣥⠁⠰⠎⢛⣿⣥⠲⢝⣿⢷⠈⣿⣿⣿⣿⣿',
+    '⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢟⠘⣿⣿⣿⣿⢟⠜⢼⣿⢛⢴⠐⢟⠆⢿⠂⣿⣿⣿⣿⣿⣿⣿⣿⢾⣿⣿⣿⣿⣿⢦⢻⣿⣿⢷⡡⢿⢦⠻⢦⡡⠁',
+    '⣿⣿⣿⣿⣿⢟⢿⣿⣿⣿⣿⣿⢟⣿⣿⣿⣿⣿⣿⣿⣿⢧⢻⣿⣿⣿⣿⣿⣿⠏⢿⣿⠹⣿⠎⠻⠇⠘⣿⢧⢠⠄⣿⠇⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿',
+    '⣿⣿⣿⣿⣿⣿⣿⢤⠰⢿⣿⣿⣿⠈⣿⠇⠀⠀⢿⡝⣿⣿⢿⣿⣿⣿⣿⡡⣿⣿⣿⠘⣿⠃⠘⡿⢸⠆⠻⣿⢧⠙⡿⢶⢤⢾⣿⠇⣿⣿⢠⡡⢻⣿⣿⣿⣿⣿⣿⣿',
+    '⣿⣿⣿⢟⢾⣿⣿⢷⡡⢳⢾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢷⢾⣿⣿⣿⣿⣿⢷⠻⢿⣿⣿⣿⣿⣿⢷⡡⠻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿',
+    '⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿',
+    '⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢟⣛⣫⣭⢵⢶⢶⢾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢶⣬⢛⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿',
+    '⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢿⣥⢶⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢟⣿⢟⣿⣿⣿⣿⣿⣿⣿⢶⢨⢛⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿',
+    '⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢟⢱⣿⣿⣿⢟⣫⣿⣿⣿⣿⣿⣿⣿⣛⢀⣿⠇⣥⠉⢿⣿⢝⢿⣿⣿⣿⢶⢧⠹⢶⣭⡝⢟⣿⣿⣿⣿⣿',
+    '⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢟⣫⢴⣿⣿⣿⠋⢾⣿⣿⣿⣿⣿⣿⣿⠋⢾⢷⠲⢣⣿⣿⣥⠉⢿⠄⠉⢿⣿⠎⠉⢿⣿⣿⣿⢷⡁⣭⣿⣿⣿',
+    '⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢟⢴⣿⣿⣿⣿⢥⣿⣿⣿⣿⣿⢿⠀⢟⠁⣿⣿⣿⢧⣨⣿⣿⣿⣿⣥⠁⠰⠎⢛⣿⣥⠲⢝⣿⢷⠈⣿⣿⣿⣿⣿',
+    '⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢟⠘⣿⣿⣿⣿⢟⠜⢼⣿⢛⢴⠐⢟⠆⢿⠂⣿⣿⣿⣿⣿⣿⣿⣿⢾⣿⣿⣿⣿⣿⢦⢻⣿⣿⢷⡡⢿⢦⠻⢦⡡⠁',
+    '⣿⣿⣿⣿⣿⢟⢿⣿⣿⣿⣿⣿⢟⣿⣿⣿⣿⣿⣿⣿⣿⢧⢻⣿⣿⣿⣿⣿⣿⠏⢿⣿⠹⣿⠎⠻⠇⠘⣿⢧⢠⠄⣿⠇⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿',
+    '⣿⣿⣿⣿⣿⣿⣿⢤⠰⢿⣿⣿⣿⠈⣿⠇⠀⠀⢿⡝⣿⣿⢿⣿⣿⣿⣿⡡⣿⣿⣿⠘⣿⠃⠘⡿⢸⠆⠻⣿⢧⠙⡿⢶⢤⢾⣿⠇⣿⣿⢠⡡⢻⣿⣿⣿⣿⣿⣿⣿',
+    '⣿⣿⣿⢟⢾⣿⣿⢷⡡⢳⢾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢷⢾⣿⣿⣿⣿⣿⢷⠻⢿⣿⣿⣿⣿⣿⢷⡡⠻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿',
+    '⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿',
+    '⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢟⣛⣫⣭⢵⢶⢶⢾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢶⣬⢛⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿',
+    '⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢿⣥⢶⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢟⣿⢟⣿⣿⣿⣿⣿⣿⣿⢶⢨⢛⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿',
+    '⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢟⢱⣿⣿⣿⢟⣫⣿⣿⣿⣿⣿⣿⣿⣛⢀⣿⠇⣥⠉⢿⣿⢝⢿⣿⣿⣿⢶⢧⠹⢶⣭⡝⢟⣿⣿⣿⣿⣿',
+    '⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢟⣫⢴⣿⣿⣿⠋⢾⣿⣿⣿⣿⣿⣿⣿⠋⢾⢷⠲⢣⣿⣿⣥⠉⢿⠄⠉⢿⣿⠎⠉⢿⣿⣿⣿⢷⡁⣭⣿⣿⣿',
+    '⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢟⢴⣿⣿⣿⣿⢥⣿⣿⣿⣿⣿⢿⠀⢟⠁⣿⣿⣿⢧⣨⣿⣿⣿⣿⣥⠁⠰⠎⢛⣿⣥⠲⢝⣿⢷⠈⣿⣿⣿⣿⣿',
+    '⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢟⠘⣿⣿⣿⣿⢟⠜⢼⣿⢛⢴⠐⢟⠆⢿⠂⣿⣿⣿⣿⣿⣿⣿⣿⢾⣿⣿⣿⣿⣿⢦⢻⣿⣿⢷⡡⢿⢦⠻⢦⡡⠁',
+    '⣿⣿⣿⣿⣿⢟⢿⣿⣿⣿⣿⣿⢟⣿⣿⣿⣿⣿⣿⣿⣿⢧⢻⣿⣿⣿⣿⣿⣿⠏⢿⣿⠹⣿⠎⠻⠇⠘⣿⢧⢠⠄⣿⠇⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿',
+    '⣿⣿⣿⣿⣿⣿⣿⢤⠰⢿⣿⣿⣿⠈⣿⠇⠀⠀⢿⡝⣿⣿⢿⣿⣿⣿⣿⡡⣿⣿⣿⠘⣿⠃⠘⡿⢸⠆⠻⣿⢧⠙⡿⢶⢤⢾⣿⠇⣿⣿⢠⡡⢻⣿⣿⣿⣿⣿⣿⣿',
+    '⣿⣿⣿⢟⢾⣿⣿⢷⡡⢳⢾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢷⢾⣿⣿⣿⣿⣿⢷⠻⢿⣿⣿⣿⣿⣿⢷⡡⠻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿',
 ]
-
-ART_W = 49  # chars per art column
 
 # ─────────────────────────────────────────────────────────────────────────────
 def put(row, col, text):
@@ -98,10 +99,10 @@ def fill(h, w):
     sys.stdout.flush()
 
 def ctr(text, width): return max(0, (width - len(text)) // 2)
-def hbar(w): return '\u2501' * w
-def box_t(w): return '\u250c' + '\u2500'*(w-2) + '\u2510'
-def box_b(w): return '\u2514' + '\u2500'*(w-2) + '\u2518'
-def box_s(w): return '\u251c' + '\u2500'*(w-2) + '\u2524'
+def hbar(w): return '━' * w
+def box_t(w): return '┌' + '─'*(w-2) + '┐'
+def box_b(w): return '└' + '─'*(w-2) + '┘'
+def box_s(w): return '├' + '─'*(w-2) + '┤'
 
 def clear_buf():
     while term.inkey(timeout=0): pass
@@ -139,14 +140,16 @@ def rick_open():
             check=False)
 
 # ─────────────────────────────────────────────────────────────────────────────
-def _draw_art_bg(H, W, art_color_fn=None):
-    """Tile BIG_ART across the full terminal background."""
-    if art_color_fn is None: art_color_fn = DR
+def _draw_art_bg(H, W):
+    """Tile BIG_ART across the full terminal. Each row tiles horizontally."""
     art_h = len(BIG_ART)
+    art_w = len(BIG_ART[0])  # all rows same width (60)
     for r in range(H):
-        row_str = BIG_ART[r % art_h][:W]
-        row_str = row_str.ljust(W)[:W]
-        put(r, 0, art_color_fn(row_str))
+        src = BIG_ART[r % art_h]
+        # tile horizontally by repeating the row
+        reps = (W // art_w) + 2
+        row_str = (src * reps)[:W]
+        put(r, 0, DR(row_str))
 
 def splash():
     with term.fullscreen(), term.cbreak(), term.hidden_cursor():
@@ -154,11 +157,9 @@ def splash():
         _draw_art_bg(H, W)
         pw = min(W-4, 48); px = (W-pw)//2
         py = max(1, (H-22)//2)
-        # header bar
-        put(py, px, R('\u2580'*pw))
+        put(py, px, R('▀'*pw))
         hdr = 'NERV HEADQUARTERS'
         put(py+1, px+ctr(hdr,pw), MU(hdr))
-        # NERV logo
         ly = py+3; lx2 = px+ctr(LOGO[0],pw)
         for i,ln in enumerate(LOGO): put(ly+i, lx2, R(ln))
         div_y = ly+len(LOGO)+1
@@ -166,10 +167,10 @@ def splash():
         put(div_y, px+ctr(div,pw), DR(div))
         labels = [('GEHIRN ADVANCED RESEARCH',AM),('MAGI SYSTEM  v3.0',MU),('CLASSIFICATION  TOP SECRET',MU)]
         for i,(txt,col) in enumerate(labels): put(div_y+2+i, px+ctr(txt,pw), col(txt))
-        sub = '\u30cd\u30eb\u30d5  \u7b2c3\u65b0\u6771\u4eac\u5e02  GEO-FRONT SUBLEVEL 7'
+        sub = 'ネルフ  第3新東京市  GEO-FRONT SUBLEVEL 7'
         put(div_y+2+len(labels)+1, px+ctr(sub,pw), DI(sub))
         bot_y = div_y+2+len(labels)+2
-        put(bot_y, px, R('\u2584'*pw))
+        put(bot_y, px, R('▄'*pw))
         prom_y = bot_y-2
         prompt = '[ PRESS SPACE TO INITIALIZE ]'
         prom_x = px+ctr(prompt,pw)
@@ -191,15 +192,15 @@ def password_gate():
     typed = []
     def _draw_frame(bx, by, bw):
         put(by,   bx, R(box_t(bw)))
-        put(by+1, bx, R('\u2502')+OR('  MAGI AUTHENTICATION PROTOCOL'.ljust(bw-2))+R('\u2502'))
+        put(by+1, bx, R('│')+OR('  MAGI AUTHENTICATION PROTOCOL'.ljust(bw-2))+R('│'))
         put(by+2, bx, R(box_s(bw)))
-        put(by+3, bx, R('\u2502')+WH('  Enter access code:'.ljust(bw-2))+R('\u2502'))
+        put(by+3, bx, R('│')+WH('  Enter access code:'.ljust(bw-2))+R('│'))
         put(by+4, bx, R(box_s(bw)))
-        put(by+5, bx, R('\u2502')+' '*(bw-2)+R('\u2502'))
+        put(by+5, bx, R('│')+' '*(bw-2)+R('│'))
         put(by+6, bx, R(box_s(bw)))
-        put(by+7, bx, R('\u2502')+' '*(bw-2)+R('\u2502'))
+        put(by+7, bx, R('│')+' '*(bw-2)+R('│'))
         put(by+8, bx, R(box_s(bw)))
-        put(by+9, bx, R('\u2502')+MU('  ENTER \u2500 confirm   BKSP \u2500 erase   ESC \u2500 quit'.ljust(bw-2))+R('\u2502'))
+        put(by+9, bx, R('│')+MU('  ENTER ─ confirm   BKSP ─ erase   ESC ─ quit'.ljust(bw-2))+R('│'))
         put(by+10,bx, R(box_s(bw)))
         put(by+11,bx, R(box_b(bw)))
     with term.fullscreen(), term.cbreak(), term.hidden_cursor():
@@ -209,11 +210,11 @@ def password_gate():
         bx = (W-bw)//2;  by = max(2,(H-bh)//2)
         _draw_frame(bx, by, bw)
         def field():
-            dots = '  '.join('\u25cf' for _ in typed) if typed else '\u00b7  \u00b7  \u00b7  \u00b7  \u00b7'
-            put(by+5, bx, R('\u2502')+AM(f'  CODE  {dots}'[:bw-2].ljust(bw-2))+R('\u2502'))
+            dots = '  '.join('●' for _ in typed) if typed else '·  ·  ·  ·  ·'
+            put(by+5, bx, R('│')+AM(f'  CODE  {dots}'[:bw-2].ljust(bw-2))+R('│'))
         def msgrow(txt='', col=BR):
             content = f'  {txt}' if txt else ''
-            put(by+7, bx, R('\u2502')+(col(content[:bw-2].ljust(bw-2)) if content else ' '*(bw-2))+R('\u2502'))
+            put(by+7, bx, R('│')+(col(content[:bw-2].ljust(bw-2)) if content else ' '*(bw-2))+R('│'))
         field(); msgrow()
         while True:
             k = term.inkey(timeout=0.1)
@@ -222,7 +223,7 @@ def password_gate():
             if is_ret(k):
                 if ''.join(typed).upper() == ACCESS_CODE.upper():
                     msgrow('ACCESS GRANTED', GN); time.sleep(0.8); return
-                msgrow('ACCESS DENIED  \u2014  W: brute-force   R: retry', BR)
+                msgrow('ACCESS DENIED  —  W: brute-force   R: retry', BR)
                 time.sleep(0.6); typed.clear(); field()
                 while True:
                     k2 = term.inkey(timeout=0.2)
@@ -242,18 +243,18 @@ def password_gate():
 
 # ─────────────────────────────────────────────────────────────────────────────
 PHASES = [
-    ('CASPAR    \u2500 INITIALISING',       0.00, 0.15),
-    ('CASPAR    \u2500 DICTIONARY LAYER I', 0.15, 0.28),
-    ('BALTHASAR \u2500 HASH EXPANSION',     0.28, 0.42),
-    ('BALTHASAR \u2500 ENTROPY ANALYSIS',   0.42, 0.55),
-    ('MELCHIOR  \u2500 NEURAL MATCH',       0.55, 0.68),
-    ('MELCHIOR  \u2500 DEEP CIPHER',        0.68, 0.80),
-    ('MAGI CORE \u2500 COLLATION',          0.80, 0.92),
-    ('MAGI CORE \u2500 UNLOCKING\u2026',    0.92, 1.00),
+    ('CASPAR    ─ INITIALISING',       0.00, 0.15),
+    ('CASPAR    ─ DICTIONARY LAYER I', 0.15, 0.28),
+    ('BALTHASAR ─ HASH EXPANSION',     0.28, 0.42),
+    ('BALTHASAR ─ ENTROPY ANALYSIS',   0.42, 0.55),
+    ('MELCHIOR  ─ NEURAL MATCH',       0.55, 0.68),
+    ('MELCHIOR  ─ DEEP CIPHER',        0.68, 0.80),
+    ('MAGI CORE ─ COLLATION',          0.80, 0.92),
+    ('MAGI CORE ─ UNLOCKING…',    0.92, 1.00),
 ]
 HEX = '0123456789ABCDEF'
 def rnd_hex(w): return ' '.join(''.join(random.choices(HEX,k=4)) for _ in range(max(1,w//5)))
-def pbar(p, w, cf=GN, ce=DI): f=int(w*p); return cf('\u2588'*f)+ce('\u2591'*max(0,w-f))
+def pbar(p, w, cf=GN, ce=DI): f=int(w*p); return cf('█'*f)+ce('░'*max(0,w-f))
 
 def _vstatus(pct, thrs, lbs):
     col = BR if pct < thrs[0] else AM if pct < thrs[1] else GN
@@ -275,16 +276,16 @@ def brute_force():
         needed = by+27
         if H < needed: by = max(0, H-27)
         put(by,   bx, R(box_t(bw)))
-        put(by+1, bx, R('\u2502')+BR('  MAGI \u2500 MANUAL DECRYPTION ENGAGED'.ljust(bw-2))+R('\u2502'))
+        put(by+1, bx, R('│')+BR('  MAGI ─ MANUAL DECRYPTION ENGAGED'.ljust(bw-2))+R('│'))
         put(by+2, bx, R(box_s(bw)))
-        put(by+3, bx, R('\u2502')+MU('  Authentication failed. Running brute-force recovery.'.ljust(bw-2))+R('\u2502'))
+        put(by+3, bx, R('│')+MU('  Authentication failed. Running brute-force recovery.'.ljust(bw-2))+R('│'))
         put(by+4, bx, R(box_s(bw)))
         put(by+7, bx, R(box_s(bw)))
         put(by+10,bx, R(box_s(bw)))
         put(by+17,bx, R(box_s(bw)))
         put(by+21,bx, R(box_s(bw)))
         put(by+24,bx, R(box_s(bw)))
-        put(by+25,bx, R('\u2502')+MU('  No way in without password  \u2014  ESC locked during bruteforce'.ljust(bw-2))+R('\u2502'))
+        put(by+25,bx, R('│')+MU('  No way in without password  —  ESC locked during bruteforce'.ljust(bw-2))+R('│'))
         put(by+26,bx, R(box_b(bw)))
         hbuf = [''] * 6; last = -1
         while True:
@@ -293,26 +294,26 @@ def brute_force():
             sec=int(el)
             if sec == last: time.sleep(0.12); continue
             last=sec; mm,ss=divmod(int(rem),60)
-            put(by+5, bx, R('\u2502')+MU('  OVERALL  ')+pbar(pct,bw2,AM,DI)+MU('  ')+R('\u2502'))
-            put(by+6, bx, R('\u2502')+AM(f'  {pct*100:5.1f}%  \u2500  ETA {mm:02d}:{ss:02d}'.ljust(bw-2))+R('\u2502'))
+            put(by+5, bx, R('│')+MU('  OVERALL  ')+pbar(pct,bw2,AM,DI)+MU('  ')+R('│'))
+            put(by+6, bx, R('│')+AM(f'  {pct*100:5.1f}%  ─  ETA {mm:02d}:{ss:02d}'.ljust(bw-2))+R('│'))
             pl,pp = PHASES[-1][0], 1.0
             for lb,p0,p1 in PHASES:
                 if pct <= p1:
                     pl=lb; pp=max(0.,min(1.,(pct-p0)/max(1e-4,p1-p0))); break
-            put(by+8, bx, R('\u2502')+CY(f'  {pl}'[:bw-2].ljust(bw-2))+R('\u2502'))
-            put(by+9, bx, R('\u2502')+MU('  PHASE    ')+pbar(pp,bw2,CY,DI)+MU('  ')+R('\u2502'))
+            put(by+8, bx, R('│')+CY(f'  {pl}'[:bw-2].ljust(bw-2))+R('│'))
+            put(by+9, bx, R('│')+MU('  PHASE    ')+pbar(pp,bw2,CY,DI)+MU('  ')+R('│'))
             hbuf = hbuf[1:] + [rnd_hex(bw-6)]
             for i,ln in enumerate(hbuf):
-                put(by+11+i, bx, R('\u2502')+(DI if i<4 else MU)(f'  {ln}'[:bw-2].ljust(bw-2))+R('\u2502'))
+                put(by+11+i, bx, R('│')+(DI if i<4 else MU)(f'  {ln}'[:bw-2].ljust(bw-2))+R('│'))
             for i,(nm,thrs,lbs) in enumerate(MAGI_VOTES):
                 col,lbl = _vstatus(pct, thrs, lbs)
-                put(by+18+i, bx, R('\u2502')+col(f'  {nm}  \u2500\u2500  {lbl}'[:bw-2].ljust(bw-2))+R('\u2502'))
-            tk = '\u258a' if sec%2==0 else '\u2589'
-            put(by+22, bx, R('\u2502')+YL(f'  {tk}  REMAINING  {mm:02d} min  {ss:02d} sec'.ljust(bw-2))+R('\u2502'))
-            tck=['SCANNING KEY SPACE\u2026','TESTING PERMUTATIONS\u2026','CROSS-REFERENCING DB\u2026','MAGI CONSENSUS\u2026','DECRYPTION ACTIVE\u2026']
-            put(by+23, bx, R('\u2502')+MU(f'  {tck[sec%len(tck)]}'[:bw-2].ljust(bw-2))+R('\u2502'))
+                put(by+18+i, bx, R('│')+col(f'  {nm}  ──  {lbl}'[:bw-2].ljust(bw-2))+R('│'))
+            tk = '▊' if sec%2==0 else '▉'
+            put(by+22, bx, R('│')+YL(f'  {tk}  REMAINING  {mm:02d} min  {ss:02d} sec'.ljust(bw-2))+R('│'))
+            tck=['SCANNING KEY SPACE…','TESTING PERMUTATIONS…','CROSS-REFERENCING DB…','MAGI CONSENSUS…','DECRYPTION ACTIVE…']
+            put(by+23, bx, R('│')+MU(f'  {tck[sec%len(tck)]}'[:bw-2].ljust(bw-2))+R('│'))
             if pct >= 1.0:
-                put(by+22, bx, R('\u2502')+GN('  RICK ROLLING YOU NOW  \u2014  NO WAY IN WITHOUT PASSWORD'.ljust(bw-2))+R('\u2502'))
+                put(by+22, bx, R('│')+GN('  RICK ROLLING YOU NOW  —  NO WAY IN WITHOUT PASSWORD'.ljust(bw-2))+R('│'))
                 time.sleep(1.0); rick_open(); time.sleep(2.0); return
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -322,14 +323,14 @@ def pq_screen():
         fill(H, W)
         bw=min(W,80); bh=14; bx=(W-bw)//2; by=max(1,(H-bh)//2)
         put(by,   bx, R(box_t(bw)))
-        put(by+1, bx, R('\u2502')+OR('  ENTER P AND Q VALUES'.ljust(bw-2))+R('\u2502'))
+        put(by+1, bx, R('│')+OR('  ENTER P AND Q VALUES'.ljust(bw-2))+R('│'))
         put(by+2, bx, R(box_s(bw)))
-        put(by+3, bx, R('\u2502')+WH('  Paste both values separated by whitespace, or as p=.. q=..'.ljust(bw-2))+R('\u2502'))
-        put(by+4, bx, R('\u2502')+WH('  These will be used to decrypt Encrypted.txt'.ljust(bw-2))+R('\u2502'))
+        put(by+3, bx, R('│')+WH('  Paste both values separated by whitespace, or as p=.. q=..'.ljust(bw-2))+R('│'))
+        put(by+4, bx, R('│')+WH('  These will be used to decrypt Encrypted.txt'.ljust(bw-2))+R('│'))
         put(by+5, bx, R(box_s(bw)))
-        for r in range(6,11): put(by+r, bx, R('\u2502')+' '*(bw-2)+R('\u2502'))
+        for r in range(6,11): put(by+r, bx, R('│')+' '*(bw-2)+R('│'))
         put(by+11,bx, R(box_s(bw)))
-        put(by+12,bx, R('\u2502')+MU('  ENTER to submit    ESC to quit'.ljust(bw-2))+R('\u2502'))
+        put(by+12,bx, R('│')+MU('  ENTER to submit    ESC to quit'.ljust(bw-2))+R('│'))
         put(by+13,bx, R(box_b(bw)))
         buf = []
         while True:
@@ -338,7 +339,7 @@ def pq_screen():
             if is_esc(k): sys.exit(0)
             if is_bs(k):
                 if buf: buf.pop()
-                put(by+6, bx, R('\u2502')+WH(('  '+''.join(buf))[-(bw-2):].ljust(bw-2))+R('\u2502'))
+                put(by+6, bx, R('│')+WH(('  '+''.join(buf))[-(bw-2):].ljust(bw-2))+R('│'))
                 continue
             if is_ret(k):
                 raw = ''.join(buf).strip()
@@ -348,14 +349,14 @@ def pq_screen():
                 else:
                     parts = raw.split(); p,q = (parts+['',''])[:2]
                 if p and q:
-                    put(by+8, bx, R('\u2502')+GN('  Running decryption\u2026'.ljust(bw-2))+R('\u2502'))
+                    put(by+8, bx, R('│')+GN('  Running decryption…'.ljust(bw-2))+R('│'))
                     time.sleep(0.5); return p, q
-                put(by+8, bx, R('\u2502')+BR('  Could not parse p and q. Try again.'.ljust(bw-2))+R('\u2502'))
+                put(by+8, bx, R('│')+BR('  Could not parse p and q. Try again.'.ljust(bw-2))+R('│'))
                 continue
             c = kch(k)
             if c and len(buf) < BUF_MAX:
                 buf.append(c)
-                put(by+6, bx, R('\u2502')+WH(('  '+''.join(buf))[-(bw-2):].ljust(bw-2))+R('\u2502'))
+                put(by+6, bx, R('│')+WH(('  '+''.join(buf))[-(bw-2):].ljust(bw-2))+R('│'))
 
 def decrypt_file(p_str, q_str):
     try:
@@ -397,14 +398,14 @@ def show_decrypted(text):
         lines=lines[:vis]; bh=vis+7
         bx=max(0,(W-bw)//2); by=max(1,(H-bh)//2)
         put(by,   bx, R(box_t(bw)))
-        put(by+1, bx, R('\u2502')+OR('  DECRYPTION COMPLETE \u2014 MAGI OUTPUT'.ljust(bw-2))+R('\u2502'))
+        put(by+1, bx, R('│')+OR('  DECRYPTION COMPLETE — MAGI OUTPUT'.ljust(bw-2))+R('│'))
         put(by+2, bx, R(box_s(bw)))
         for i,ln in enumerate(lines):
-            put(by+3+i, bx, R('\u2502')+'  '+WH(ln[:iw].ljust(iw))+'  '+R('\u2502'))
+            put(by+3+i, bx, R('│')+'  '+WH(ln[:iw].ljust(iw))+'  '+R('│'))
         fr = by+3+vis
         put(fr,   bx, R(box_s(bw)))
-        put(fr+1, bx, R('\u2502')+MU('  Decryption successful. Proceed?'.ljust(bw-2))+R('\u2502'))
-        put(fr+2, bx, R('\u2502')+AM('  ENTER \u2500 next   ESC \u2500 abort'.ljust(bw-2))+R('\u2502'))
+        put(fr+1, bx, R('│')+MU('  Decryption successful. Proceed?'.ljust(bw-2))+R('│'))
+        put(fr+2, bx, R('│')+AM('  ENTER ─ next   ESC ─ abort'.ljust(bw-2))+R('│'))
         put(fr+3, bx, R(box_b(bw)))
         while True:
             k = term.inkey(timeout=0.1)
@@ -414,31 +415,25 @@ def show_decrypted(text):
 
 # ─────────────────────────────────────────────────────────────────────────────
 def terms_screen():
-    """YES/NO menu — fully keyboard navigable.
-    Arrow keys / Tab cycle between YES and NO.
-    ENTER selects. Y/N keys jump directly.
-    """
-    sel = 0  # 0 = YES, 1 = NO
-
+    sel = 0  # 0=YES 1=NO
     def _draw(bx, by, bw):
         put(by,   bx, R(box_t(bw)))
-        put(by+1, bx, R('\u2502')+OR('  NERV TERMS & CONDITIONS'.ljust(bw-2))+R('\u2502'))
+        put(by+1, bx, R('│')+OR('  NERV TERMS & CONDITIONS'.ljust(bw-2))+R('│'))
         put(by+2, bx, R(box_s(bw)))
-        put(by+3, bx, R('\u2502')+WH('  Do you accept the following terms?'.ljust(bw-2))+R('\u2502'))
+        put(by+3, bx, R('│')+WH('  Do you accept the following terms?'.ljust(bw-2))+R('│'))
         put(by+4, bx, R(box_s(bw)))
-        # YES row
-        yes_txt = '\u2b9a  YES  \u2014  \u5df2\u9605\u8bfb\u5e76\u540c\u610f Instagram \u670d\u52a1\u6761\u6b3e'
-        no_txt  = '\u2b9a  NO   \u2014  YouTube \u30b5\u30fc\u30d3\u30b9\u5229\u7528\u898f\u7d04'
-        yes_col = (lambda s: term.color_rgb(255,220,0)+term.bold+s+term.normal) if sel==0 else MU
-        no_col  = (lambda s: term.color_rgb(255,220,0)+term.bold+s+term.normal) if sel==1 else MU
-        yes_pfx = '\u25b6 ' if sel==0 else '  '
-        no_pfx  = '\u25b6 ' if sel==1 else '  '
-        put(by+5, bx, R('\u2502')+yes_col(f'  {yes_pfx}{yes_txt}'[:bw-2].ljust(bw-2))+R('\u2502'))
-        put(by+6, bx, R('\u2502')+no_col( f'  {no_pfx}{no_txt}' [:bw-2].ljust(bw-2))+R('\u2502'))
+        yes_txt = '⮚  YES  —  已阅读并同意 Instagram 服务条款'
+        no_txt  = '⮚  NO   —  YouTube サービス利用規約'
+        hl = lambda s: term.color_rgb(255,220,0)+term.bold+s+term.normal
+        yes_col = hl if sel==0 else MU
+        no_col  = hl if sel==1 else MU
+        yes_pfx = '▶ ' if sel==0 else '  '
+        no_pfx  = '▶ ' if sel==1 else '  '
+        put(by+5, bx, R('│')+yes_col(f'  {yes_pfx}{yes_txt}'[:bw-2].ljust(bw-2))+R('│'))
+        put(by+6, bx, R('│')+no_col( f'  {no_pfx}{no_txt}' [:bw-2].ljust(bw-2))+R('│'))
         put(by+7, bx, R(box_s(bw)))
-        put(by+8, bx, R('\u2502')+DI('  \u2191\u2193 / Tab \u2500 move   ENTER \u2500 confirm   Y/N \u2500 jump   ESC \u2500 quit'.ljust(bw-2))+R('\u2502'))
+        put(by+8, bx, R('│')+DI('  ↑↓ / Tab ─ move   ENTER ─ confirm   Y/N ─ jump   ESC ─ quit'.ljust(bw-2))+R('│'))
         put(by+9, bx, R(box_b(bw)))
-
     with term.fullscreen(), term.cbreak(), term.hidden_cursor():
         H, W = term.height, term.width
         _draw_art_bg(H, W)
@@ -449,9 +444,7 @@ def terms_screen():
             k = term.inkey(timeout=0.1)
             if not k: continue
             if is_esc(k): sys.exit(0)
-            if is_up(k) or is_tab(k):
-                sel = 1 - sel; _draw(bx, by, bw)
-            elif is_dn(k):
+            if is_up(k) or is_dn(k) or is_tab(k):
                 sel = 1 - sel; _draw(bx, by, bw)
             elif is_ret(k):
                 return sel == 0
@@ -467,16 +460,16 @@ def yes_screen():
         _draw_art_bg(H, W)
         bw=min(W,80); bh=12; bx=(W-bw)//2; by=max(1,(H-bh)//2)
         put(by,   bx, R(box_t(bw)))
-        put(by+1, bx, R('\u2502')+BR('  YAYYYYYYYYYY'.ljust(bw-2))+R('\u2502'))
-        put(by+2, bx, R('\u2502')+BR('  you got a secret message !!!!'.ljust(bw-2))+R('\u2502'))
+        put(by+1, bx, R('│')+BR('  YAYYYYYYYYYY'.ljust(bw-2))+R('│'))
+        put(by+2, bx, R('│')+BR('  you got a secret message !!!!'.ljust(bw-2))+R('│'))
         put(by+3, bx, R(box_s(bw)))
-        put(by+4, bx, R('\u2502')+AM('  \u30cd\u30eb\u30d5\u6a5f\u5bc6\u6587\u66f8 \u2500 TOP SECRET \u2500 FINAL INTEL'.ljust(bw-2))+R('\u2502'))
-        put(by+5, bx, R('\u2502')+WH('  press ENTER to reveal the secret message'.ljust(bw-2))+R('\u2502'))
+        put(by+4, bx, R('│')+AM('  ネルフ機密文書 ─ TOP SECRET ─ FINAL INTEL'.ljust(bw-2))+R('│'))
+        put(by+5, bx, R('│')+WH('  press ENTER to reveal the secret message'.ljust(bw-2))+R('│'))
         put(by+6, bx, R(box_s(bw)))
-        put(by+7, bx, R('\u2502')+MU('  SHINJI  ASUKA  REI  \u2014  all waiting for you to know'.ljust(bw-2))+R('\u2502'))
-        put(by+8, bx, R('\u2502')+MU('  do not be afraid  \u2014  this is definitely not a rick-roll'.ljust(bw-2))+R('\u2502'))
+        put(by+7, bx, R('│')+MU('  SHINJI  ASUKA  REI  —  all waiting for you to know'.ljust(bw-2))+R('│'))
+        put(by+8, bx, R('│')+MU('  do not be afraid  —  this is definitely not a rick-roll'.ljust(bw-2))+R('│'))
         put(by+9, bx, R(box_s(bw)))
-        put(by+10,bx, R('\u2502')+DI('  [ ENTER to proceed ]   [ ESC to cowardly flee ]'.ljust(bw-2))+R('\u2502'))
+        put(by+10,bx, R('│')+DI('  [ ENTER to proceed ]   [ ESC to cowardly flee ]'.ljust(bw-2))+R('│'))
         put(by+11,bx, R(box_b(bw)))
         while True:
             k = term.inkey(timeout=0.1)
@@ -490,13 +483,13 @@ def no_screen():
         _draw_art_bg(H, W)
         bw=min(W,80); bh=10; bx=(W-bw)//2; by=max(1,(H-bh)//2)
         put(by,  bx, R(box_t(bw)))
-        put(by+1,bx, R('\u2502')+BR('  REFUSED  \u2014  MAGI OVERRIDE ACTIVATED'.ljust(bw-2))+R('\u2502'))
+        put(by+1,bx, R('│')+BR('  REFUSED  —  MAGI OVERRIDE ACTIVATED'.ljust(bw-2))+R('│'))
         put(by+2,bx, R(box_s(bw)))
-        put(by+3,bx, R('\u2502')+MU('  You refused. NERV does not accept refusal.'.ljust(bw-2))+R('\u2502'))
-        put(by+4,bx, R('\u2502')+MU('  Redirecting to mandatory training material.'.ljust(bw-2))+R('\u2502'))
+        put(by+3,bx, R('│')+MU('  You refused. NERV does not accept refusal.'.ljust(bw-2))+R('│'))
+        put(by+4,bx, R('│')+MU('  Redirecting to mandatory training material.'.ljust(bw-2))+R('│'))
         put(by+5,bx, R(box_s(bw)))
-        put(by+6,bx, R('\u2502')+AM('  Deploying classified footage directly to terminal\u2026'.ljust(bw-2))+R('\u2502'))
-        put(by+7,bx, R('\u2502')+DI('  (there is no escape)'.ljust(bw-2))+R('\u2502'))
+        put(by+6,bx, R('│')+AM('  Deploying classified footage directly to terminal…'.ljust(bw-2))+R('│'))
+        put(by+7,bx, R('│')+DI('  (there is no escape)'.ljust(bw-2))+R('│'))
         put(by+8,bx, R(box_s(bw)))
         put(by+9,bx, R(box_b(bw)))
         time.sleep(1.5)
