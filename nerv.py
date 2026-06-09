@@ -30,7 +30,7 @@ RICK_BASH     = 'curl -s -L https://raw.githubusercontent.com/keroserene/rickrol
 RICK_URL_WIN  = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
 ENC_FILE      = 'Encrypted.txt'
 MAGIC         = b'\x89TLOCK02'
-BUF_MAX       = 256  # FIX #5: cap input buffers
+BUF_MAX       = 256
 
 # ─────────────────────────────────────────────────────────────────────────────
 LOGO = [
@@ -42,33 +42,48 @@ LOGO = [
     '\u255a\u2550\u255d  \u255a\u2550\u2550\u2550\u255d\u255a\u2550\u2550\u2550\u2550\u2550\u2550\u255d\u255a\u2550\u255d  \u255a\u2550\u255d  \u255a\u2550\u2550\u2550\u255d  ',
 ]
 
-LEFT_ART = (
-    '\u2847\u28ff\u2847\u28ff\u2847\u28ff\u2847\u28ff\u2847\u28ff\u2847\u28ff\u2847\u28ff\u2847\u28ff\u2847\u28ff\u2847\u28ff\u2847\u28ff\u2847\u28ff\u2847\u28ff\u2847\u28ff\u2847\u28ff\u2847\u28ff\u2847\u28ff\u2847\u28b7\u28ae\u2861\u283b\u28bf\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28b7\u2861\u28bb\u28ff\u28ff\n'
-    '\u28ff\u287f\u2823\u280b\u28a0\u287f\u28fb\u287f\u28cb\u28b5\u28be\u28ff\u283f\u28a1\u287e\u28f9\u287f\u28a3\u28a4\u28ff\u28b7\u28a4\u2861\u28bf\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28b7\u28a4\u2808\u283b\u283f\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28b7\u28bd\u28b7\u285d\u28bf\u28ff\u28ff\n'
-    '\u28ff\u2801\u28a0\u28be\u28af\u28be\u28ff\u28ff\u283f\u28b5\u28ff\u28ab\u28be\u28ff\u28a3\u28ff\u28ff\u287f\u28ff\u287f\u28ff\u28ff\u28ff\u28ae\u283b\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u285d\u283f\u28b7\u28a4\u2800\u2808\u28bf\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28bf\u28b7\u28bd\u28bf\n'
-    '\u2803\u28bc\u28ff\u28ff\u28ff\u28ff\u283f\u2861\u283f\u28fb\u280d\u287d\u280b\u2807\u28ff\u28ff\u283f\u2818\u28ff\u28a7\u2818\u28ff\u28ff\u28ff\u28b7\u2861\u28ff\u28ff\u28ff\u28ff\u2807\u28ff\u28b7\u28b6\u287f\u283f\u2832\u2834\u2861\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u280e\u28bf\u28ff\u28a7\u2861\n'
-    '\u28be\u28ff\u28ff\u28ff\u287f\u280b\u28a4\u28a7\u2818\u287f\u2801\u28a4\u28ff\u2818\u28ff\u287f\u28bc\u28ff\u28ff\u28ff\u28a4\u28bb\u28ff\u28ff\u28ff\u28b7\u28ac\u28bf\u28ff\u28ff\u28b7\u2819\u28ff\u280f\u2808\u28be\u28b7\u28ac\u2800\u28ff\u28ff\u28be\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\n'
-    '\u28ff\u28ff\u28ff\u28af\u28be\u28ff\u280b\u2801\u283e\u28a4\u28ff\u28ff\u2807\u28be\u28ff\u28a0\u28ff\u28ff\u28ff\u28ff\u28ff\u280e\u28ff\u28ff\u28ff\u28ff\u28ff\u280e\u28bb\u28ff\u28ff\u28a7\u283b\u28ff\u28a6\u2828\u285b\u28bf\u28b7\u28ac\u28bb\u28ff\u2806\u28bf\u28ff\u28ff\u28ff\u28ff\u28ff\n'
-    '\u28ff\u28ff\u28ff\u28ff\u28ff\u283f\u28a4\u280b\u28bc\u28bb\u28ff\u28ff\u2807\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28be\u28ff\u28ff\u28ff\u28ff\u28ff\u28a6\u28bb\u28ff\u28ff\u28b7\u2861\u28bf\u28a6\u283b\u28a6\u2861\u2801\u2819\u28ff\u2838\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\n'
-    '\u28ff\u28ff\u28ff\u28ff\u28ff\u2800\u2801\u28be\u28ff\u2818\u28ff\u28ff\u2800\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28a7\u28bb\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u280f\u28bf\u28ff\u2839\u28ff\u280e\u283b\u2807\u2818\u28ff\u28a7\u28a0\u2804\u28ff\u2807\u28ff\u28ff\u28ff\u28ff\u28ff\n'
-    '\u28ff\u28ff\u280c\u28ff\u283f\u28a0\u28ff\u28ff\u28ff\u2818\u28ff\u287f\u2800\u28bb\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u280e\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u2807\u2818\u28ff\u2800\u28bb\u28ff\u28b7\u28a4\u2861\u283f\u28bf\u28bd\u2807\u28ff\u2807\u28ff\u28ff\u28bb\u28ff\u28ff\n'
-    '\u28ff\u28ff\u28ff\u28a4\u2830\u28bf\u28ff\u28ff\u28ff\u2808\u28ff\u2807\u2800\u2800\u28bf\u285d\u28ff\u28ff\u28bf\u28ff\u28ff\u28ff\u28ff\u2861\u28ff\u28ff\u28ff\u2818\u28ff\u2803\u2818\u287f\u28b8\u2806\u283b\u28ff\u28a7\u2819\u287f\u28b6\u28a4\u28be\u28ff\u2807\u28ff\u28ff\u28a0\u2861\u28bb'
-).splitlines()
+# Full braille ASCII art — 36 rows x 48 cols
+BIG_ART = [
+    '\u28ff\u28ff\u28ff\u28bf\u28ff\u28bf\u28ff\u28b5\u28be\u28ff\u28ff\u2600\u28ff\u28b6\u28f7\u28bf\u2820\u28bb\u28be\u28ff\u2807\u28ae\u2821\u28b5\u2866\u28bf\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28b6\u28ae\u2809\u28bb\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28b7\u2849\u28bb\u28ff\u28ff',
+    '\u28ff\u289f\u2820\u280b\u28a0\u287f\u28fb\u287f\u28cb\u28b5\u28be\u28ff\u283f\u28a1\u287e\u28f9\u287f\u28a3\u28a4\u28ff\u28b7\u28a4\u2861\u28bf\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28b7\u28a4\u2808\u283b\u283f\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28b7\u28bd\u28b7\u285d\u28bf\u28ff\u28ff',
+    '\u28ff\u2801\u28a0\u28be\u28af\u28be\u28ff\u28ff\u283f\u28b5\u28ff\u28ab\u28be\u28ff\u28a3\u28ff\u28ff\u287f\u28ff\u287f\u28ff\u28ff\u28ff\u28ae\u283b\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u285d\u283f\u28b7\u28a4\u2800\u2808\u28bf\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28bf\u28b7\u28bd\u28bf',
+    '\u2803\u28bc\u28ff\u28ff\u28ff\u28ff\u283f\u2861\u283f\u28fb\u280d\u287d\u280b\u2807\u28ff\u28ff\u283f\u2818\u28ff\u28a7\u2818\u28ff\u28ff\u28ff\u28b7\u2861\u28ff\u28ff\u28ff\u28ff\u2807\u28ff\u28b7\u28b6\u287f\u283f\u2832\u2834\u2861\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u280e\u28bf\u28ff\u28a7',
+    '\u28be\u28ff\u28ff\u28ff\u287f\u280b\u28a4\u28a7\u2818\u287f\u2801\u28a4\u28ff\u2818\u28ff\u287f\u28bc\u28ff\u28ff\u28ff\u28a4\u28bb\u28ff\u28ff\u28ff\u28b7\u28ac\u28bf\u28ff\u28ff\u28b7\u2819\u28ff\u280f\u2808\u28be\u28b7\u28ac\u2800\u28ff\u28ff\u28be\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff',
+    '\u28ff\u28ff\u28ff\u28af\u28be\u28ff\u280b\u2801\u283e\u28a4\u28ff\u28ff\u2807\u28be\u28ff\u28a0\u28ff\u28ff\u28ff\u28ff\u28ff\u280e\u28ff\u28ff\u28ff\u28ff\u28ff\u280e\u28bb\u28ff\u28ff\u28a7\u283b\u28ff\u28a6\u2828\u285b\u28bf\u28b7\u28ac\u28bb\u28ff\u2806\u28bf\u28ff\u28ff\u28ff\u28ff\u28ff',
+    '\u28ff\u28ff\u28ff\u28ff\u28ff\u283f\u28a4\u280b\u28bc\u28bb\u28ff\u28ff\u2807\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28be\u28ff\u28ff\u28ff\u28ff\u28ff\u28a6\u28bb\u28ff\u28ff\u28b7\u2861\u28bf\u28a6\u283b\u28a6\u2861\u2801\u2819\u28ff\u2838\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff',
+    '\u28ff\u28ff\u28ff\u28ff\u28ff\u2800\u2801\u28be\u28ff\u2818\u28ff\u28ff\u2800\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28a7\u28bb\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u280f\u28bf\u28ff\u2839\u28ff\u280e\u283b\u2807\u2818\u28ff\u28a7\u28a0\u2804\u28ff\u2807\u28ff\u28ff\u28ff\u28ff\u28ff',
+    '\u28ff\u28ff\u280c\u28ff\u283f\u28a0\u28ff\u28ff\u28ff\u2818\u28ff\u287f\u2800\u28bb\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u280e\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u2807\u2818\u28ff\u2800\u28bb\u28ff\u28b7\u28a4\u2861\u283f\u28bf\u28bd\u2807\u28ff\u2807\u28ff\u28ff\u28bb\u28ff\u28ff',
+    '\u28ff\u28ff\u28ff\u28a4\u2830\u28bf\u28ff\u28ff\u28ff\u2808\u28ff\u2807\u2800\u2800\u28bf\u285d\u28ff\u28ff\u28bf\u28ff\u28ff\u28ff\u28ff\u2861\u28ff\u28ff\u28ff\u2818\u28ff\u2803\u2818\u287f\u28b8\u2806\u283b\u28ff\u28a7\u2819\u287f\u28b6\u28a4\u28be\u28ff\u2807\u28ff\u28ff\u28a0\u2861\u28bb',
+    '\u28ff\u28ff\u28ff\u289f\u28be\u28ff\u28ff\u28b7\u2861\u28b3\u28be\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28b7\u28be\u28ff\u28ff\u28ff\u28ff\u28ff\u28b7\u283b\u28bf\u28ff\u28ff\u28ff\u28ff\u28ff\u28b7\u2861\u283b\u28ff\u28ff\u28ff',
+    '\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff',
+    '\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff',
+    '\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff',
+    '\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff',
+    '\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff',
+    '\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff',
+    '\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff',
+    '\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff',
+    '\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff',
+    '\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff',
+    '\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff',
+    '\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff',
+    '\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff',
+    '\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff',
+    '\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff',
+    '\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff',
+    '\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff',
+    '\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff',
+    '\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff',
+    '\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff',
+    '\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff',
+    '\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff',
+    '\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff',
+    '\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff',
+    '\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff',
+    '\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff',
+]
 
-RIGHT_ART = (
-    '\u28ff\u287f\u2803\u2801\u28be\u28ff\u2818\u2803\u287b\u28a4\u2800\u28fb\u280f\u283b\u28bf\u2800\u2809\u28a0\u28a4\u283a\u283f\u283b\u28bf\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28b7\u2861\u283b\u28bf\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28b7\u2861\u28bb\u28ff\u28ff\u28ff\u28ff\n'
-    '\u28ff\u287f\u2823\u280b\u28a0\u287f\u28fb\u287f\u28cb\u28b5\u28be\u28ff\u283f\u28a1\u287e\u28f9\u287f\u28a3\u28a4\u28ff\u28b7\u28a4\u2861\u28bf\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28b7\u28a4\u2808\u283b\u283f\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28b7\u28bd\u28b7\u285d\u28bf\u28ff\u28ff\n'
-    '\u28ff\u2801\u28a0\u28be\u28af\u28be\u28ff\u28ff\u283f\u28b5\u28ff\u28ab\u28be\u28ff\u28a3\u28ff\u28ff\u287f\u28ff\u287f\u28ff\u28ff\u28ff\u28ae\u283b\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u285d\u283f\u28b7\u28a4\u2800\u2808\u28bf\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28bf\u28b7\u28bd\u28bf\n'
-    '\u2803\u28bc\u28ff\u28ff\u28ff\u28ff\u283f\u2861\u283f\u28fb\u280d\u287d\u280b\u2807\u28ff\u28ff\u283f\u2818\u28ff\u28a7\u2818\u28ff\u28ff\u28ff\u28b7\u2861\u28ff\u28ff\u28ff\u28ff\u2807\u28ff\u28b7\u28b6\u287f\u283f\u2832\u2834\u2861\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u280e\u28bf\u28ff\u28a7\u2861\n'
-    '\u28be\u28ff\u28ff\u28ff\u287f\u280b\u28a4\u28a7\u2818\u287f\u2801\u28a4\u28ff\u2818\u28ff\u287f\u28bc\u28ff\u28ff\u28ff\u28a4\u28bb\u28ff\u28ff\u28ff\u28b7\u28ac\u28bf\u28ff\u28ff\u28b7\u2819\u28ff\u280f\u2808\u28be\u28b7\u28ac\u2800\u28ff\u28ff\u28be\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\n'
-    '\u28ff\u28ff\u28ff\u28af\u28be\u28ff\u280b\u2801\u283e\u28a4\u28ff\u28ff\u2807\u28be\u28ff\u28a0\u28ff\u28ff\u28ff\u28ff\u28ff\u280e\u28ff\u28ff\u28ff\u28ff\u28ff\u280e\u28bb\u28ff\u28ff\u28a7\u283b\u28ff\u28a6\u2828\u285b\u28bf\u28b7\u28ac\u28bb\u28ff\u2806\u28bf\u28ff\u28ff\u28ff\u28ff\u28ff\n'
-    '\u28ff\u28ff\u28ff\u28ff\u28ff\u283f\u28a4\u280b\u28bc\u28bb\u28ff\u28ff\u2807\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28be\u28ff\u28ff\u28ff\u28ff\u28ff\u28a6\u28bb\u28ff\u28ff\u28b7\u2861\u28bf\u28a6\u283b\u28a6\u2861\u2801\u2819\u28ff\u2838\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\n'
-    '\u28ff\u28ff\u28ff\u28ff\u28ff\u2800\u2801\u28be\u28ff\u2818\u28ff\u28ff\u2800\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28a7\u28bb\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u280f\u28bf\u28ff\u2839\u28ff\u280e\u283b\u2807\u2818\u28ff\u28a7\u28a0\u2804\u28ff\u2807\u28ff\u28ff\u28ff\u28ff\u28ff\n'
-    '\u28ff\u28ff\u280c\u28ff\u283f\u28a0\u28ff\u28ff\u28ff\u2818\u28ff\u287f\u2800\u28bb\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u280e\u28ff\u28ff\u28ff\u28ff\u28ff\u28ff\u2807\u2818\u28ff\u2800\u28bb\u28ff\u28b7\u28a4\u2861\u283f\u28bf\u28bd\u2807\u28ff\u2807\u28ff\u28ff\u28bb\u28ff\u28ff\n'
-    '\u28ff\u28ff\u28ff\u28a4\u2830\u28bf\u28ff\u28ff\u28ff\u2808\u28ff\u2807\u2800\u2800\u28bf\u285d\u28ff\u28ff\u28bf\u28ff\u28ff\u28ff\u28ff\u2861\u28ff\u28ff\u28ff\u2818\u28ff\u2803\u2818\u287f\u28b8\u2806\u283b\u28ff\u28a7\u2819\u287f\u28b6\u28a4\u28be\u28ff\u2807\u28ff\u28ff\u28a0\u2861\u28bb'
-).splitlines()
-
-ART_W = 50
+ART_W = 49  # chars per art column
 
 # ─────────────────────────────────────────────────────────────────────────────
 def put(row, col, text):
@@ -104,6 +119,9 @@ def is_sp(k):  return not k.is_sequence and str(k) == ' '
 def is_esc(k): return k.is_sequence and k.name == 'KEY_ESCAPE'
 def is_ret(k): return (k.is_sequence and k.name == 'KEY_ENTER') or str(k) in ('\n','\r')
 def is_bs(k):  return (k.is_sequence and k.name in ('KEY_BACKSPACE','KEY_DELETE')) or str(k) in ('\x7f','\b')
+def is_up(k):  return k.is_sequence and k.name in ('KEY_UP',   'KEY_LEFT')
+def is_dn(k):  return k.is_sequence and k.name in ('KEY_DOWN', 'KEY_RIGHT')
+def is_tab(k): return not k.is_sequence and str(k) == '\t'
 def kch(k):    return str(k) if not k.is_sequence and len(str(k))==1 else None
 
 def rick_open():
@@ -121,46 +139,45 @@ def rick_open():
             check=False)
 
 # ─────────────────────────────────────────────────────────────────────────────
+def _draw_art_bg(H, W, art_color_fn=None):
+    """Tile BIG_ART across the full terminal background."""
+    if art_color_fn is None: art_color_fn = DR
+    art_h = len(BIG_ART)
+    for r in range(H):
+        row_str = BIG_ART[r % art_h][:W]
+        row_str = row_str.ljust(W)[:W]
+        put(r, 0, art_color_fn(row_str))
+
 def splash():
     with term.fullscreen(), term.cbreak(), term.hidden_cursor():
         H, W = term.height, term.width
-        fill(H, W)
-        PAD = 1; GAP = 2
-        if W >= 110:
-            lx = PAD; rx = W - PAD - ART_W
-            px = lx + ART_W + GAP; pw = rx - GAP - px
-            for art, ax in ((LEFT_ART, lx),(RIGHT_ART, rx)):
-                rows = art[:H-2]; sy = max(0,(H-len(rows))//2)
-                for i,ln in enumerate(rows): put(sy+i, ax, R(ln[:ART_W]))
-        elif W >= 70:
-            rx = W - PAD - ART_W; pw = rx - GAP - PAD; px = PAD
-            ra = RIGHT_ART[:H-2]; sy = max(0,(H-len(ra))//2)
-            for i,ln in enumerate(ra): put(sy+i, rx, R(ln[:ART_W]))
-        else:
-            pw = min(W-2, 64); px = (W-pw)//2
-        pw = max(42, pw); py = max(1,(H-24)//2)
+        _draw_art_bg(H, W)
+        pw = min(W-4, 48); px = (W-pw)//2
+        py = max(1, (H-22)//2)
+        # header bar
         put(py, px, R('\u2580'*pw))
         hdr = 'NERV HEADQUARTERS'
         put(py+1, px+ctr(hdr,pw), MU(hdr))
+        # NERV logo
         ly = py+3; lx2 = px+ctr(LOGO[0],pw)
         for i,ln in enumerate(LOGO): put(ly+i, lx2, R(ln))
         div_y = ly+len(LOGO)+1
-        div = hbar(min(pw-4,36))
+        div = hbar(min(pw-4, 36))
         put(div_y, px+ctr(div,pw), DR(div))
         labels = [('GEHIRN ADVANCED RESEARCH',AM),('MAGI SYSTEM  v3.0',MU),('CLASSIFICATION  TOP SECRET',MU)]
         for i,(txt,col) in enumerate(labels): put(div_y+2+i, px+ctr(txt,pw), col(txt))
+        sub = '\u30cd\u30eb\u30d5  \u7b2c3\u65b0\u6771\u4eac\u5e02  GEO-FRONT SUBLEVEL 7'
+        put(div_y+2+len(labels)+1, px+ctr(sub,pw), DI(sub))
         bot_y = div_y+2+len(labels)+2
         put(bot_y, px, R('\u2584'*pw))
         prom_y = bot_y-2
         prompt = '[ PRESS SPACE TO INITIALIZE ]'
         prom_x = px+ctr(prompt,pw)
-        sub = '\u30cd\u30eb\u30d5  \u7b2c3\u65b0\u6771\u4eac\u5e02  GEO-FRONT SUBLEVEL 7'
-        put(div_y+2+len(labels)+1, px+ctr(sub,pw), DI(sub))
         stop = threading.Event()
         def blink():
             v = True
             while not stop.is_set():
-                put(prom_y, prom_x, AM(prompt) if v else BG_ON+' '*len(prompt)+term.normal)
+                put(prom_y, prom_x, AM(prompt) if v else DR(' '*len(prompt)))
                 v = not v; stop.wait(0.55)
         t = threading.Thread(target=blink, daemon=True); t.start()
         while True:
@@ -173,7 +190,6 @@ def splash():
 def password_gate():
     typed = []
     def _draw_frame(bx, by, bw):
-        """FIX #4: extracted so frame can be repainted any time."""
         put(by,   bx, R(box_t(bw)))
         put(by+1, bx, R('\u2502')+OR('  MAGI AUTHENTICATION PROTOCOL'.ljust(bw-2))+R('\u2502'))
         put(by+2, bx, R(box_s(bw)))
@@ -208,13 +224,12 @@ def password_gate():
                     msgrow('ACCESS GRANTED', GN); time.sleep(0.8); return
                 msgrow('ACCESS DENIED  \u2014  W: brute-force   R: retry', BR)
                 time.sleep(0.6); typed.clear(); field()
-                while True:  # inner W/R loop
+                while True:
                     k2 = term.inkey(timeout=0.2)
                     if not k2: continue
                     c2 = kch(k2)
                     if c2 and c2.lower() == 'w': brute_force(); return
                     if c2 and c2.lower() == 'r':
-                        # FIX #4: repaint full frame before resuming
                         fill(H, W); _draw_frame(bx,by,bw); field(); msgrow(); break
                     if is_esc(k2): sys.exit(0)
                 continue
@@ -240,7 +255,6 @@ HEX = '0123456789ABCDEF'
 def rnd_hex(w): return ' '.join(''.join(random.choices(HEX,k=4)) for _ in range(max(1,w//5)))
 def pbar(p, w, cf=GN, ce=DI): f=int(w*p); return cf('\u2588'*f)+ce('\u2591'*max(0,w-f))
 
-# FIX #1: vstatus defined OUTSIDE brute_force so it is not recreated on every tick
 def _vstatus(pct, thrs, lbs):
     col = BR if pct < thrs[0] else AM if pct < thrs[1] else GN
     lbl = lbs[0] if pct < thrs[0] else lbs[1] if pct < thrs[1] else lbs[2]
@@ -258,7 +272,6 @@ def brute_force():
         H, W = term.height, term.width
         fill(H, W)
         bw = min(W,70); bx=(W-bw)//2; by=1; bw2=bw-14
-        # FIX #2: guard minimum height
         needed = by+27
         if H < needed: by = max(0, H-27)
         put(by,   bx, R(box_t(bw)))
@@ -275,7 +288,7 @@ def brute_force():
         put(by+26,bx, R(box_b(bw)))
         hbuf = [''] * 6; last = -1
         while True:
-            term.inkey(timeout=0)  # drain — ESC locked
+            term.inkey(timeout=0)
             now=time.time(); el=min(now-t0,T); pct=el/T; rem=max(0,T-el)
             sec=int(el)
             if sec == last: time.sleep(0.12); continue
@@ -291,7 +304,7 @@ def brute_force():
             hbuf = hbuf[1:] + [rnd_hex(bw-6)]
             for i,ln in enumerate(hbuf):
                 put(by+11+i, bx, R('\u2502')+(DI if i<4 else MU)(f'  {ln}'[:bw-2].ljust(bw-2))+R('\u2502'))
-            for i,(nm,thrs,lbs) in enumerate(MAGI_VOTES):  # FIX #1: use module-level _vstatus
+            for i,(nm,thrs,lbs) in enumerate(MAGI_VOTES):
                 col,lbl = _vstatus(pct, thrs, lbs)
                 put(by+18+i, bx, R('\u2502')+col(f'  {nm}  \u2500\u2500  {lbl}'[:bw-2].ljust(bw-2))+R('\u2502'))
             tk = '\u258a' if sec%2==0 else '\u2589'
@@ -340,7 +353,7 @@ def pq_screen():
                 put(by+8, bx, R('\u2502')+BR('  Could not parse p and q. Try again.'.ljust(bw-2))+R('\u2502'))
                 continue
             c = kch(k)
-            if c and len(buf) < BUF_MAX:  # FIX #5: cap buffer
+            if c and len(buf) < BUF_MAX:
                 buf.append(c)
                 put(by+6, bx, R('\u2502')+WH(('  '+''.join(buf))[-(bw-2):].ljust(bw-2))+R('\u2502'))
 
@@ -401,41 +414,57 @@ def show_decrypted(text):
 
 # ─────────────────────────────────────────────────────────────────────────────
 def terms_screen():
-    with term.fullscreen(), term.cbreak(), term.hidden_cursor():
-        H, W = term.height, term.width
-        fill(H, W)
-        bw=min(W,86); bh=14; bx=(W-bw)//2; by=max(1,(H-bh)//2)
+    """YES/NO menu — fully keyboard navigable.
+    Arrow keys / Tab cycle between YES and NO.
+    ENTER selects. Y/N keys jump directly.
+    """
+    sel = 0  # 0 = YES, 1 = NO
+
+    def _draw(bx, by, bw):
         put(by,   bx, R(box_t(bw)))
         put(by+1, bx, R('\u2502')+OR('  NERV TERMS & CONDITIONS'.ljust(bw-2))+R('\u2502'))
         put(by+2, bx, R(box_s(bw)))
         put(by+3, bx, R('\u2502')+WH('  Do you accept the following terms?'.ljust(bw-2))+R('\u2502'))
         put(by+4, bx, R(box_s(bw)))
-        put(by+5, bx, R('\u2502')+AM('  YES  \u2500  \u5df2\u9605\u8bfb\u5e76\u540c\u610f Instagram \u670d\u52a1\u6761\u6b3e (Chinese)'.ljust(bw-2))+R('\u2502'))
-        put(by+6, bx, R('\u2502')+MU('  NO   \u2500  YouTube \u30b5\u30fc\u30d3\u30b9\u5229\u7528\u898f\u7d04 (Japanese)'.ljust(bw-2))+R('\u2502'))
+        # YES row
+        yes_txt = '\u2b9a  YES  \u2014  \u5df2\u9605\u8bfb\u5e76\u540c\u610f Instagram \u670d\u52a1\u6761\u6b3e'
+        no_txt  = '\u2b9a  NO   \u2014  YouTube \u30b5\u30fc\u30d3\u30b9\u5229\u7528\u898f\u7d04'
+        yes_col = (lambda s: term.color_rgb(255,220,0)+term.bold+s+term.normal) if sel==0 else MU
+        no_col  = (lambda s: term.color_rgb(255,220,0)+term.bold+s+term.normal) if sel==1 else MU
+        yes_pfx = '\u25b6 ' if sel==0 else '  '
+        no_pfx  = '\u25b6 ' if sel==1 else '  '
+        put(by+5, bx, R('\u2502')+yes_col(f'  {yes_pfx}{yes_txt}'[:bw-2].ljust(bw-2))+R('\u2502'))
+        put(by+6, bx, R('\u2502')+no_col( f'  {no_pfx}{no_txt}' [:bw-2].ljust(bw-2))+R('\u2502'))
         put(by+7, bx, R(box_s(bw)))
-        put(by+8, bx, R('\u2502')+WH('  Type YES or NO and press ENTER'.ljust(bw-2))+R('\u2502'))
-        put(by+9, bx, R('\u2502')+' '*(bw-2)+R('\u2502'))
-        put(by+10,bx, R('\u2502')+' '*(bw-2)+R('\u2502'))
-        put(by+11,bx, R(box_s(bw)))
-        put(by+12,bx, R('\u2502')+MU('  ESC to exit'.ljust(bw-2))+R('\u2502'))
-        put(by+13,bx, R(box_b(bw)))
-        buf = []
+        put(by+8, bx, R('\u2502')+DI('  \u2191\u2193 / Tab \u2500 move   ENTER \u2500 confirm   Y/N \u2500 jump   ESC \u2500 quit'.ljust(bw-2))+R('\u2502'))
+        put(by+9, bx, R(box_b(bw)))
+
+    with term.fullscreen(), term.cbreak(), term.hidden_cursor():
+        H, W = term.height, term.width
+        _draw_art_bg(H, W)
+        bw = min(W, 76); bh = 10
+        bx = (W-bw)//2; by = max(1,(H-bh)//2)
+        _draw(bx, by, bw)
         while True:
             k = term.inkey(timeout=0.1)
             if not k: continue
             if is_esc(k): sys.exit(0)
-            if is_ret(k):
-                return ''.join(buf).strip().lower() == 'yes'
-            c = kch(k)
-            if c and c.isalpha() and len(buf) < BUF_MAX:  # FIX #5
-                buf.append(c.upper())
-                put(by+10, bx, R('\u2502')+WH(('  '+''.join(buf))[-(bw-2):].ljust(bw-2))+R('\u2502'))
+            if is_up(k) or is_tab(k):
+                sel = 1 - sel; _draw(bx, by, bw)
+            elif is_dn(k):
+                sel = 1 - sel; _draw(bx, by, bw)
+            elif is_ret(k):
+                return sel == 0
+            else:
+                c = kch(k)
+                if c and c.lower() == 'y': sel = 0; _draw(bx, by, bw)
+                elif c and c.lower() == 'n': sel = 1; _draw(bx, by, bw)
 
 # ─────────────────────────────────────────────────────────────────────────────
 def yes_screen():
     with term.fullscreen(), term.cbreak(), term.hidden_cursor():
         H, W = term.height, term.width
-        fill(H, W)
+        _draw_art_bg(H, W)
         bw=min(W,80); bh=12; bx=(W-bw)//2; by=max(1,(H-bh)//2)
         put(by,   bx, R(box_t(bw)))
         put(by+1, bx, R('\u2502')+BR('  YAYYYYYYYYYY'.ljust(bw-2))+R('\u2502'))
@@ -458,7 +487,7 @@ def yes_screen():
 def no_screen():
     with term.fullscreen(), term.cbreak(), term.hidden_cursor():
         H, W = term.height, term.width
-        fill(H, W)
+        _draw_art_bg(H, W)
         bw=min(W,80); bh=10; bx=(W-bw)//2; by=max(1,(H-bh)//2)
         put(by,  bx, R(box_t(bw)))
         put(by+1,bx, R('\u2502')+BR('  REFUSED  \u2014  MAGI OVERRIDE ACTIVATED'.ljust(bw-2))+R('\u2502'))
