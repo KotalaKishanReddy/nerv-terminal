@@ -27,7 +27,6 @@ def c_bright(s): return term.color_rgb(255, 60,  60)  + s + term.normal
 def c_muted(s):  return term.color_rgb(140, 120, 100) + s + term.normal
 def c_cyan(s):   return term.color_rgb(0,   200, 220) + s + term.normal
 def c_yellow(s): return term.color_rgb(240, 230, 50)  + s + term.normal
-def c_purple(s): return term.color_rgb(140, 60,  200) + s + term.normal
 
 # ── Config ────────────────────────────────────────────────────────────────────
 ACCESS_CODE   = "NERV0"
@@ -117,7 +116,7 @@ def wrap_text(text, width):
     return lines or [""]
 
 # ─────────────────────────────────────────────────────────────────────────────
-# SCREEN 1 — SPLASH  (left: EVA-01 art | right: NERV panel)
+# SCREEN 1 — SPLASH  (centre: NERV panel | right: EVA-01 art in red)
 # ─────────────────────────────────────────────────────────────────────────────
 def draw_splash():
     nerv_art = [l for l in Figlet(font='banner3').renderText('NERV').splitlines() if l.strip()]
@@ -126,30 +125,29 @@ def draw_splash():
         print(term.clear)
         h, w = term.height, term.width
 
-        # dark red scanline bg
         for row in range(h):
             put(row, 0, c_dred('░' * w))
 
         wide = w >= 100
 
         if wide:
-            # ── split layout ──────────────────────────────────────────────
-            art_w  = 50            # each braille char is 1 cell wide
+            art_w  = 50
             gap    = 2
-            rp_w   = min(60, w - art_w - gap - 2)   # right panel width
-            art_x  = 1
-            rp_x   = art_x + art_w + gap
+            # NERV panel centred in the left portion of the screen
+            rp_w   = min(60, w - art_w - gap - 4)
+            rp_x   = max(1, (w - art_w - gap - rp_w) // 2)
+            # EVA art flush to the right
+            art_x  = w - art_w - 1
 
-            # clamp art rows to terminal height
-            art_rows = EVA_ART[:h - 2]
+            # draw EVA art on the RIGHT in red
+            art_rows   = EVA_ART[:h - 2]
             art_start_y = max(0, (h - len(art_rows)) // 2)
-
             for i, line in enumerate(art_rows):
-                put(art_start_y + i, art_x, c_purple(line[:art_w]))
+                put(art_start_y + i, art_x, c_red(line[:art_w]))
 
-            # right panel
-            rp_h   = h - 4
-            rp_y   = 2
+            # NERV panel in the centre
+            rp_h = h - 4
+            rp_y = 2
             for row in range(rp_h):
                 put(rp_y + row, rp_x, term.on_black + ' ' * rp_w + term.normal)
             put(rp_y, rp_x, c_red('▀' * rp_w))
@@ -169,21 +167,19 @@ def draw_splash():
 
             for i, (txt, col) in enumerate([
                 ('GEHIRN ADVANCED RESEARCH', c_amber),
-                ('MAGI SYSTEM  v3.0', c_muted),
+                ('MAGI SYSTEM  v3.0',        c_muted),
                 ('CLASSIFICATION  TOP SECRET', c_muted),
             ]):
                 put(art_end + 3 + i, rp_x + center_x(txt, rp_w), col(txt[:rp_w]))
 
-            prompt     = '[ PRESS SPACE TO INITIALIZE ]'
-            prompt_y   = rp_y + rp_h - 3
-            prompt_x   = rp_x + center_x(prompt, rp_w)
+            prompt   = '[ PRESS SPACE TO INITIALIZE ]'
+            prompt_y = rp_y + rp_h - 3
+            prompt_x = rp_x + center_x(prompt, rp_w)
 
         else:
-            # ── narrow: single centred panel (original layout) ────────────
-            bw = min(w, 64)
-            bh = h - 4
-            bx = (w - bw) // 2
-            by = 2
+            # narrow: single centred panel
+            bw = min(w, 64); bh = h - 4
+            bx = (w - bw) // 2; by = 2
             for row in range(bh):
                 put(by + row, bx, term.on_black + ' ' * bw + term.normal)
             put(by, bx, c_red('▀' * bw))
@@ -197,7 +193,7 @@ def draw_splash():
             put(art_end + 1, bx + center_x(uline, bw), c_dred(uline))
             for i, (txt, col) in enumerate([
                 ('GEHIRN ADVANCED RESEARCH', c_amber),
-                ('MAGI SYSTEM  v3.0', c_muted),
+                ('MAGI SYSTEM  v3.0',        c_muted),
                 ('CLASSIFICATION  TOP SECRET', c_muted),
             ]):
                 put(art_end + 3 + i, bx + center_x(txt, bw), col(txt[:bw]))
@@ -216,15 +212,11 @@ def draw_splash():
 
         t = threading.Thread(target=blink, daemon=True)
         t.start()
-
         while True:
             key = term.inkey(timeout=0.05)
-            if not key:
-                continue
-            if is_space(key):
-                stop_ev.set(); t.join(0.7); clear_key_buffer(); break
-            if is_esc(key):
-                stop_ev.set(); sys.exit(0)
+            if not key: continue
+            if is_space(key): stop_ev.set(); t.join(0.7); clear_key_buffer(); break
+            if is_esc(key):   stop_ev.set(); sys.exit(0)
 
 # ─────────────────────────────────────────────────────────────────────────────
 # SCREEN 2 — PASSWORD GATE
@@ -234,14 +226,10 @@ def draw_password_gate():
     with term.fullscreen(), term.cbreak(), term.hidden_cursor():
         print(term.clear)
         h, w = term.height, term.width
-        bw = min(w, 62)
-        bh = 14
-        bx = (w - bw) // 2
-        by = max(2, (h - bh) // 2)
-        for row in range(h):
-            put(row, 0, c_dred('░' * w))
-        for row in range(bh):
-            put(by + row, bx, term.on_black + ' ' * bw + term.normal)
+        bw = min(w, 62); bh = 14
+        bx = (w - bw) // 2; by = max(2, (h - bh) // 2)
+        for row in range(h): put(row, 0, c_dred('░' * w))
+        for row in range(bh): put(by + row, bx, term.on_black + ' ' * bw + term.normal)
         put(by,      bx, c_red(box_top(bw)))
         put(by + 1,  bx, c_red('│') + c_orange('  MAGI AUTHENTICATION PROTOCOL'.ljust(bw - 2)) + c_red('│'))
         put(by + 2,  bx, c_red(box_sep(bw)))
@@ -256,15 +244,14 @@ def draw_password_gate():
         put(by + 11, bx, c_red('│') + c_muted('  [ ESC   ] quit'.ljust(bw - 2))    + c_red('│'))
         put(by + 12, bx, c_red(box_sep(bw)))
         put(by + 13, bx, c_red(box_bot(bw)))
-        row_field = by + 5
-        row_msg   = by + 7
+        row_field = by + 5; row_msg = by + 7
 
         def _field():
             dots = '  '.join('●' for _ in typed) if typed else '·  ·  ·  ·  ·'
             put(row_field, bx, c_red('│') + c_amber(f'  CODE   {dots}'[:bw - 2].ljust(bw - 2)) + c_red('│'))
 
         def _msg(text='', col=None):
-            col  = col or c_bright
+            col = col or c_bright
             line = f'  {text}' if text else ''
             put(row_msg, bx, c_red('│') + (col(line[:bw - 2].ljust(bw - 2)) if line else ' ' * (bw - 2)) + c_red('│'))
 
@@ -272,7 +259,7 @@ def draw_password_gate():
         while True:
             key = term.inkey(timeout=0.1)
             if not key: continue
-            if is_esc(key):   sys.exit(0)
+            if is_esc(key): sys.exit(0)
             if is_enter(key):
                 if ''.join(typed).upper() == ACCESS_CODE.upper():
                     _msg('ACCESS GRANTED', col=c_green); time.sleep(0.7); return True
@@ -295,7 +282,7 @@ def draw_password_gate():
                 typed.append(ch.upper()); _field()
 
 # ─────────────────────────────────────────────────────────────────────────────
-# SCREEN 2b — MAGI BRUTE-FORCE COUNTDOWN
+# SCREEN 2b — MAGI BRUTE-FORCE
 # ─────────────────────────────────────────────────────────────────────────────
 BRUTE_PHASES = [
     ('CASPAR  ── INITIALISING KEY SEARCH',    0.00, 0.12),
@@ -318,8 +305,7 @@ def _prog_bar(pct, width, col_fill=None, col_empty=None):
     return (col_fill or c_green)('█' * filled) + (col_empty or c_dim)('░' * max(0, width - filled))
 
 def draw_brute_force():
-    total = BRUTE_SECONDS
-    start_ts = time.time()
+    total = BRUTE_SECONDS; start_ts = time.time()
     with term.fullscreen(), term.cbreak(), term.hidden_cursor():
         h, w = term.height, term.width
         print(term.clear)
@@ -339,13 +325,8 @@ def draw_brute_force():
         put(by + 25, bx, c_red(box_sep(bw)))
         put(by + 26, bx, c_red('│') + c_muted('  [ ESC ] abort'.ljust(bw - 2)) + c_red('│'))
         put(by + 27, bx, c_red(box_bot(bw)))
-        R = dict(
-            bar=by+6, pct=by+7, lbl=by+9, phase=by+10,
-            hex=by+12, cas=by+19, bal=by+20, mel=by+21,
-            clk=by+23, tick=by+24,
-        )
-        bar_w = max(10, bw - 14)
-        hex_buf = [''] * 6; last_sec = -1
+        R = dict(bar=by+6,pct=by+7,lbl=by+9,phase=by+10,hex=by+12,cas=by+19,bal=by+20,mel=by+21,clk=by+23,tick=by+24)
+        bar_w = max(10, bw - 14); hex_buf = [''] * 6; last_sec = -1
         while True:
             key = term.inkey(timeout=0.12)
             if key and is_esc(key): sys.exit(0)
@@ -360,9 +341,7 @@ def draw_brute_force():
             phase_lbl, phase_pct = BRUTE_PHASES[-1][0], 1.0
             for lbl, p0, p1 in BRUTE_PHASES:
                 if pct <= p1:
-                    phase_lbl = lbl
-                    phase_pct = max(0.0, min(1.0, (pct - p0) / max(0.001, p1 - p0)))
-                    break
+                    phase_lbl = lbl; phase_pct = max(0.0, min(1.0, (pct - p0) / max(0.001, p1 - p0))); break
             put(R['lbl'],   bx, c_red('│') + c_cyan(f'  {phase_lbl}'[:bw-2].ljust(bw-2)) + c_red('│'))
             put(R['phase'], bx, c_red('│') + c_muted('  PHASE  ') + _prog_bar(phase_pct, bar_w, c_cyan, c_dim) + c_muted('  ') + c_red('│'))
             hex_buf = hex_buf[1:] + [_rand_hex(bw-8)]
@@ -373,8 +352,7 @@ def draw_brute_force():
                 (c_bright if pct<0.50 else c_amber if pct<0.75 else c_green)('  BALTHASAR  ──  ' + ('COMPUTING...' if pct<0.50 else 'CONVERGING'   if pct<0.75 else 'APPROVED')),
                 (c_bright if pct<0.72 else c_amber if pct<0.95 else c_green)('  MELCHIOR   ──  ' + ('DEEP SCAN...' if pct<0.72 else 'KEY MATCH'    if pct<0.95 else 'APPROVED')),
             ]
-            for i, v in enumerate(votes):
-                put(R['cas']+i, bx, c_red('│') + v[:bw-2].ljust(bw-2) + c_red('│'))
+            for i, v in enumerate(votes): put(R['cas']+i, bx, c_red('│') + v[:bw-2].ljust(bw-2) + c_red('│'))
             tick = '▊' if cur_sec % 2 == 0 else '▉'
             put(R['clk'],  bx, c_red('│') + c_yellow(f'  {tick}  TIME REMAINING   {mm:02d} min  {ss:02d} sec'.ljust(bw-2)) + c_red('│'))
             tickers = ['SCANNING KEY SPACE ...','TESTING PERMUTATIONS ...','CROSS-REFERENCING PATTERN DB ...','MAGI CONSENSUS IN PROGRESS ...','DECRYPTION LAYER ACTIVE ...']
@@ -425,16 +403,16 @@ def draw_final_secret_prompt():
         for row in range(h): put(row, 0, c_dred('░' * w))
         for row in range(bh): put(by+row, bx, term.on_black + ' ' * bw + term.normal)
         put(by,    bx, c_red(box_top(bw)))
-        put(by+1,  bx, c_red('│') + c_orange('  FINAL AUTHORIZATION LAYER'.ljust(bw-2))                          + c_red('│'))
+        put(by+1,  bx, c_red('│') + c_orange('  FINAL AUTHORIZATION LAYER'.ljust(bw-2))                         + c_red('│'))
         put(by+2,  bx, c_red(box_sep(bw)))
-        put(by+3,  bx, c_red('│') + c_white('  Press Enter for the final secret message.'.ljust(bw-2))            + c_red('│'))
-        put(by+4,  bx, c_red('│') + c_muted('  This will execute the configured terminal payload.'.ljust(bw-2))  + c_red('│'))
+        put(by+3,  bx, c_red('│') + c_white('  Press Enter for the final secret message.'.ljust(bw-2))           + c_red('│'))
+        put(by+4,  bx, c_red('│') + c_muted('  This will execute the configured terminal payload.'.ljust(bw-2)) + c_red('│'))
         put(by+5,  bx, c_red(box_sep(bw)))
-        put(by+6,  bx, c_red('│') + c_amber('  [ ENTER ] execute'.ljust(bw-2))                                   + c_red('│'))
-        put(by+7,  bx, c_red('│') + c_muted('  [ ESC   ] abort'.ljust(bw-2))                                     + c_red('│'))
+        put(by+6,  bx, c_red('│') + c_amber('  [ ENTER ] execute'.ljust(bw-2))                                  + c_red('│'))
+        put(by+7,  bx, c_red('│') + c_muted('  [ ESC   ] abort'.ljust(bw-2))                                    + c_red('│'))
         put(by+8,  bx, c_red(box_sep(bw)))
-        put(by+9,  bx, c_red('│') + c_dim('  Awaiting final trigger...'.ljust(bw-2))                              + c_red('│'))
-        put(by+10, bx, c_red('│') + c_dim(FINAL_COMMAND[:bw-4].ljust(bw-2))                                      + c_red('│'))
+        put(by+9,  bx, c_red('│') + c_dim('  Awaiting final trigger...'.ljust(bw-2))                             + c_red('│'))
+        put(by+10, bx, c_red('│') + c_dim(FINAL_COMMAND[:bw-4].ljust(bw-2))                                     + c_red('│'))
         put(by+11, bx, c_red(box_bot(bw)))
         while True:
             key = term.inkey(timeout=0.1)
