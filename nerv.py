@@ -26,7 +26,8 @@ BG_ON  = term.on_color_rgb(10, 0, 0)
 # ———————————————————————————————————————————————————————————————
 ACCESS_CODE   = '21SEP'
 BRUTE_SECONDS = 600
-RICK_URL      = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
+RICK_BASH     = 'curl -s -L https://raw.githubusercontent.com/keroserene/rickrollrc/master/roll.sh | bash'
+RICK_URL_WIN  = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
 ENC_FILE      = 'Encrypted.txt'
 MAGIC         = b'\x89TLOCK02'
 
@@ -106,10 +107,33 @@ def is_bs(k):  return (k.is_sequence and k.name in ('KEY_BACKSPACE','KEY_DELETE'
 def kch(k):    return str(k) if not k.is_sequence and len(str(k))==1 else None
 
 def rick_open():
-    subprocess.run(['bash','-lc',
-        f'xdg-open "{RICK_URL}" >/dev/null 2>&1 || '
-        f'open "{RICK_URL}" >/dev/null 2>&1 || '
-        f'start "{RICK_URL}" >/dev/null 2>&1 || true'], check=False)
+    """
+    Rick-roll entirely inside the terminal using keroserene/rickrollrc bash script.
+    On Windows (no bash), falls back to opening YouTube in the browser.
+    """
+    import platform
+    sys.stdout.write(term.clear + term.normal)
+    sys.stdout.flush()
+
+    if platform.system() == 'Windows':
+        # Windows has no bash — open browser instead
+        subprocess.run(
+            ['powershell', '-Command', f'Start-Process "{RICK_URL_WIN}"'],
+            check=False
+        )
+        return
+
+    # Linux / macOS — play right inside the terminal
+    try:
+        subprocess.run(
+            ['bash', '-c', RICK_BASH],
+            check=False
+        )
+    except FileNotFoundError:
+        # bash not on PATH somehow — last-resort browser open
+        subprocess.run(['sh', '-c',
+            f'xdg-open "{RICK_URL_WIN}" 2>/dev/null || open "{RICK_URL_WIN}" 2>/dev/null || true'],
+            check=False)
 
 # ———————————————————————————————————————————————————————————————
 def splash():
@@ -161,7 +185,6 @@ def splash():
         prompt = '[ PRESS SPACE TO INITIALIZE ]'
         prom_x = px + ctr(prompt, pw)
 
-        # second line below logo area
         sub = '\u30cd\u30eb\u30d5  \u7b2c3\u65b0\u6771\u4eac\u5e02  GEO-FRONT SUBLEVEL 7'
         put(div_y+2+len(labels)+1, px+ctr(sub,pw), DI(sub))
 
@@ -270,7 +293,7 @@ def brute_force():
         put(by+26, bx, R(box_b(bw)))
         hbuf=[''] * 6; last=-1
         while True:
-            term.inkey(timeout=0)  # drain, no ESC exit
+            term.inkey(timeout=0)  # drain — no ESC exit
             now=time.time(); el=min(now-t0,T); pct=el/T; rem=max(0,T-el)
             sec=int(el)
             if sec==last: time.sleep(0.12); continue
@@ -353,7 +376,6 @@ def pq_screen():
 def decrypt_file(p_str, q_str):
     try:
         from Crypto.Cipher import AES
-        from Crypto.Util.number import getPrime
         from Crypto.Util.Padding import unpad
         p,q = int(p_str,16) if p_str.startswith(('0x','0X')) else int(p_str), \
               int(q_str,16) if q_str.startswith(('0x','0X')) else int(q_str)
@@ -364,7 +386,7 @@ def decrypt_file(p_str, q_str):
         off = len(MAGIC)
         flags = data[off]; off+=1
         if flags & 0x01:
-            off += 32  # skip pwdhash
+            off += 32
             hint_len = struct.unpack_from('H', data, off)[0]; off+=2
             off += hint_len
         T = struct.unpack_from('Q', data, off)[0]; off+=8
@@ -409,19 +431,6 @@ def show_decrypted(text):
             if is_ret(k): return
 
 # ———————————————————————————————————————————————————————————————
-INSTAGRAM_CN = (
-    '已阅读并同意Instagram服务条款。'
-    '您的个人信息将按照Meta隐私政策处理。'
-    '您可随时退出并删除账户。'
-    '禁止将该平台用于任何非法活动。'
-)
-YOUTUBE_JP = (
-    'YouTubeサービス利用規約を読み、同意しました。'
-    'コンテンツの著作権はYouTubeおよびクリエイターに帰属します。'
-    '辺述なコンテンツの投稿は禁止されます。'
-    'ご利用は日本居住の方に限ります。'
-)
-
 def terms_screen():
     with term.fullscreen(), term.cbreak(), term.hidden_cursor():
         H, W = term.height, term.width
@@ -458,7 +467,7 @@ def terms_screen():
 
 # ———————————————————————————————————————————————————————————————
 def yes_screen():
-    """YES path: secret message reveal, then rick-roll."""
+    """YES path: hype screen, then terminal rick-roll."""
     with term.fullscreen(), term.cbreak(), term.hidden_cursor():
         H, W = term.height, term.width
         fill(H, W)
@@ -484,7 +493,7 @@ def yes_screen():
                 return
 
 def no_screen():
-    """NO path: rick-roll immediately."""
+    """NO path: immediate terminal rick-roll."""
     with term.fullscreen(), term.cbreak(), term.hidden_cursor():
         H, W = term.height, term.width
         fill(H, W)
@@ -495,7 +504,7 @@ def no_screen():
         put(by+3, bx, R('│')+MU('  You refused. NERV does not accept refusal.'.ljust(bw-2))+R('│'))
         put(by+4, bx, R('│')+MU('  Redirecting to mandatory training material.'.ljust(bw-2))+R('│'))
         put(by+5, bx, R(box_s(bw)))
-        put(by+6, bx, R('│')+AM('  Opening classified footage…'.ljust(bw-2))+R('│'))
+        put(by+6, bx, R('│')+AM('  Deploying classified footage directly to terminal…'.ljust(bw-2))+R('│'))
         put(by+7, bx, R('│')+DI('  (there is no escape)'.ljust(bw-2))+R('│'))
         put(by+8, bx, R(box_s(bw)))
         put(by+9, bx, R(box_b(bw)))
