@@ -38,6 +38,16 @@ LOREM_IPSUM = (
     "exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
 )
 
+# Hard-coded clean block NERV logo (uniform width = 38 chars per line)
+NERV_LOGO = [
+    "███╗   ██╗███████╗██████╗ ██╗   ██╗",
+    "████╗  ██║██╔════╝██╔══██╗██║   ██║",
+    "██╔██╗ ██║█████╗  ██████╔╝██║   ██║",
+    "██║╚██╗██║██╔══╝  ██╔══██╗╚██╗ ██╔╝",
+    "██║ ╚████║███████╗██║  ██║ ╚████╔╝ ",
+    "╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝  ╚═══╝  ",
+]
+
 # ── EVA-01 ASCII art (braille-style, 36 rows × 50 cols) ──────────────────────
 EVA_ART = [
     "⣿⣿⣿⢟⣿⢟⣵⣾⣿⣿⠟⢋⣤⣶⠟⢉⣠⣴⠚⠟⠛⢿⣿⣿⣿⣿⣿⣿⣷⣮⡙⠻⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⡉⢻⣿⣿⣿⣿⣿",
@@ -116,100 +126,104 @@ def wrap_text(text, width):
     return lines or [""]
 
 # ─────────────────────────────────────────────────────────────────────────────
-# SCREEN 1 — SPLASH  (centre: NERV panel | right: EVA-01 art in red)
+# SCREEN 1 — SPLASH
+# Layout (wide ≥100 cols): [  left gap  |  NERV panel centred  |  EVA art right  ]
 # ─────────────────────────────────────────────────────────────────────────────
 def draw_splash():
-    nerv_art = [l for l in Figlet(font='banner3').renderText('NERV').splitlines() if l.strip()]
-
     with term.fullscreen(), term.cbreak(), term.hidden_cursor():
         print(term.clear)
         h, w = term.height, term.width
 
+        # dark red scanline background
         for row in range(h):
             put(row, 0, c_dred('░' * w))
 
-        wide = w >= 100
+        art_w = 50   # EVA art column width
+        gap   = 2    # gap between panel and art
 
-        if wide:
-            art_w  = 50
-            gap    = 2
-            # NERV panel centred in the left portion of the screen
-            rp_w   = min(60, w - art_w - gap - 4)
-            rp_x   = max(1, (w - art_w - gap - rp_w) // 2)
-            # EVA art flush to the right
-            art_x  = w - art_w - 1
+        if w >= 100:
+            # EVA art sits on the right edge
+            art_x = w - art_w - 1
+            # NERV panel width fills the remaining left space, capped nicely
+            rp_w  = min(62, art_x - 4)
+            # Truly centre the NERV panel in the space left of the art
+            rp_x  = max(1, (art_x - rp_w) // 2)
 
-            # draw EVA art on the RIGHT in red
-            art_rows   = EVA_ART[:h - 2]
+            # draw EVA art (right side, red)
+            art_rows    = EVA_ART[:h - 2]
             art_start_y = max(0, (h - len(art_rows)) // 2)
             for i, line in enumerate(art_rows):
                 put(art_start_y + i, art_x, c_red(line[:art_w]))
 
-            # NERV panel in the centre
+            # NERV panel
             rp_h = h - 4
             rp_y = 2
             for row in range(rp_h):
                 put(rp_y + row, rp_x, term.on_black + ' ' * rp_w + term.normal)
-            put(rp_y, rp_x, c_red('▀' * rp_w))
+            # top/bottom bars
+            put(rp_y,           rp_x, c_red('▀' * rp_w))
             put(rp_y + rp_h - 1, rp_x, c_red('▄' * rp_w))
 
-            top_lbl = ' NERV HEADQUARTERS '
-            put(rp_y + 1, rp_x + center_x(top_lbl, rp_w), c_muted(top_lbl))
+            # header
+            hdr = ' NERV HEADQUARTERS '
+            put(rp_y + 1, rp_x + center_x(hdr, rp_w), c_muted(hdr))
 
-            lx = rp_x + center_x(max(nerv_art, key=len), rp_w)
+            # NERV block logo — hard-coded clean chars, centred
+            logo_w = len(NERV_LOGO[0])
+            lx = rp_x + max(0, (rp_w - logo_w) // 2)
             ly = rp_y + 3
-            for i, line in enumerate(nerv_art[:rp_h - 12]):
-                put(ly + i, lx, c_red(line[:rp_w]))
+            for i, line in enumerate(NERV_LOGO):
+                put(ly + i, lx, c_red(line))
 
-            art_end = ly + len(nerv_art[:rp_h - 12])
+            logo_end = ly + len(NERV_LOGO)
             uline = '━' * min(max(16, rp_w // 2), rp_w - 6)
-            put(art_end + 1, rp_x + center_x(uline, rp_w), c_dred(uline))
+            put(logo_end + 1, rp_x + center_x(uline, rp_w), c_dred(uline))
 
             for i, (txt, col) in enumerate([
                 ('GEHIRN ADVANCED RESEARCH', c_amber),
                 ('MAGI SYSTEM  v3.0',        c_muted),
                 ('CLASSIFICATION  TOP SECRET', c_muted),
             ]):
-                put(art_end + 3 + i, rp_x + center_x(txt, rp_w), col(txt[:rp_w]))
+                put(logo_end + 3 + i, rp_x + center_x(txt, rp_w), col(txt))
 
             prompt   = '[ PRESS SPACE TO INITIALIZE ]'
             prompt_y = rp_y + rp_h - 3
             prompt_x = rp_x + center_x(prompt, rp_w)
 
         else:
-            # narrow: single centred panel
-            bw = min(w, 64); bh = h - 4
-            bx = (w - bw) // 2; by = 2
-            for row in range(bh):
-                put(by + row, bx, term.on_black + ' ' * bw + term.normal)
-            put(by, bx, c_red('▀' * bw))
-            put(by + bh - 1, bx, c_red('▄' * bw))
-            put(by + 1, bx + center_x(' NERV HEADQUARTERS ', bw), c_muted(' NERV HEADQUARTERS '))
-            lx = bx + center_x(max(nerv_art, key=len), bw)
-            for i, line in enumerate(nerv_art[:bh - 12]):
-                put(by + 3 + i, lx, c_red(line[:bw]))
-            art_end = by + 3 + len(nerv_art[:bh - 12])
-            uline = '━' * min(max(18, bw // 2), bw - 8)
-            put(art_end + 1, bx + center_x(uline, bw), c_dred(uline))
+            # narrow fallback — single centred panel
+            rp_w = min(w, 64); rp_h = h - 4
+            rp_x = (w - rp_w) // 2; rp_y = 2
+            for row in range(rp_h):
+                put(rp_y + row, rp_x, term.on_black + ' ' * rp_w + term.normal)
+            put(rp_y,            rp_x, c_red('▀' * rp_w))
+            put(rp_y + rp_h - 1, rp_x, c_red('▄' * rp_w))
+            hdr = ' NERV HEADQUARTERS '
+            put(rp_y + 1, rp_x + center_x(hdr, rp_w), c_muted(hdr))
+            logo_w = len(NERV_LOGO[0])
+            lx = rp_x + max(0, (rp_w - logo_w) // 2)
+            for i, line in enumerate(NERV_LOGO):
+                put(rp_y + 3 + i, lx, c_red(line))
+            logo_end = rp_y + 3 + len(NERV_LOGO)
+            uline = '━' * min(max(18, rp_w // 2), rp_w - 8)
+            put(logo_end + 1, rp_x + center_x(uline, rp_w), c_dred(uline))
             for i, (txt, col) in enumerate([
                 ('GEHIRN ADVANCED RESEARCH', c_amber),
                 ('MAGI SYSTEM  v3.0',        c_muted),
                 ('CLASSIFICATION  TOP SECRET', c_muted),
             ]):
-                put(art_end + 3 + i, bx + center_x(txt, bw), col(txt[:bw]))
+                put(logo_end + 3 + i, rp_x + center_x(txt, rp_w), col(txt))
             prompt   = '[ SPACE ]  START'
-            prompt_y = by + bh - 3
-            prompt_x = bx + center_x(prompt, bw)
+            prompt_y = rp_y + rp_h - 3
+            prompt_x = rp_x + center_x(prompt, rp_w)
 
         stop_ev = threading.Event()
-
         def blink():
             visible = True
             while not stop_ev.is_set():
                 put(prompt_y, prompt_x, c_amber(prompt) if visible else ' ' * len(prompt))
                 visible = not visible
                 stop_ev.wait(0.55)
-
         t = threading.Thread(target=blink, daemon=True)
         t.start()
         while True:
