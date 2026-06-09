@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
 """
 NERV Terminal — Neon Genesis Evangelion themed terminal launcher
-Usage: python nerv.py
-
-Dependencies: blessed, pyfiglet
-  pip install -r requirements.txt
+Usage: python3 nerv.py
+Dependencies: blessed pyfiglet
 """
 
 import sys
@@ -16,353 +14,330 @@ from pyfiglet import Figlet
 
 term = Terminal()
 
-# ─── EVA Color Palette ───────────────────────────────────────────────────────
-def orange(s):    return term.color_rgb(255, 90, 0)    + s + term.normal
-def red(s):       return term.color_rgb(200, 20, 20)   + s + term.normal
-def amber(s):     return term.color_rgb(255, 165, 0)   + s + term.normal
-def dark_red(s):  return term.color_rgb(120, 0, 0)     + s + term.normal
-def white(s):     return term.color_rgb(220, 210, 190) + s + term.normal
-def dim_white(s): return term.color_rgb(120, 110, 100) + s + term.normal
-def bright_red(s):return term.color_rgb(255, 50, 50)   + s + term.normal
-def green(s):     return term.color_rgb(0, 200, 80)    + s + term.normal
+# ── Palette ──────────────────────────────────────────────────────────────────
+def c_red(s):      return term.color_rgb(200, 20,  20)  + s + term.normal
+def c_orange(s):   return term.color_rgb(255, 90,  0)   + s + term.normal
+def c_amber(s):    return term.color_rgb(255, 165, 0)   + s + term.normal
+def c_dark_red(s): return term.color_rgb(100, 0,   0)   + s + term.normal
+def c_white(s):    return term.color_rgb(220, 210, 190) + s + term.normal
+def c_dim(s):      return term.color_rgb(90,  80,  70)  + s + term.normal
+def c_green(s):    return term.color_rgb(0,   200, 80)  + s + term.normal
+def c_bright(s):   return term.color_rgb(255, 50,  50)  + s + term.normal
 
-# ─── Key helpers ─────────────────────────────────────────────────────────────
-def is_space(key):
-    """Reliable spacebar detection across terminals."""
-    return (not key.is_sequence) and str(key) == ' '
-
-def is_escape(key):
-    return key.is_sequence and key.name == 'KEY_ESCAPE'
-
-def key_char(key):
-    """Return lowercase char only for plain (non-sequence) keystrokes."""
-    if not key.is_sequence and len(str(key)) == 1:
-        return str(key).lower()
+# ── Key helpers ───────────────────────────────────────────────────────────────
+def is_space(k):  return (not k.is_sequence) and str(k) == ' '
+def is_esc(k):    return k.is_sequence and k.name == 'KEY_ESCAPE'
+def key_char(k):
+    if not k.is_sequence and len(str(k)) == 1:
+        return str(k).lower()
     return None
 
-# ─── Scanline / Background noise ─────────────────────────────────────────────
-HEX_CHARS = "0123456789ABCDEF神使徒覚醒警戒"
+HEX_CHARS = "0123456789ABCDEF使徒覚醒"
 
-def random_hex_line(width):
-    return "".join(random.choice(HEX_CHARS) for _ in range(width))
+def noise(w):
+    return "".join(random.choice(HEX_CHARS) for _ in range(w))
 
-# ─── Shinji ASCII art frames (right-side panel, animated) ────────────────────
-SHINJI_FRAMES = [
-    # Frame 0 — neutral
-    [
-        r"   .-----.",
-        r"  /  o o  \\",
-        r" |    △    |",
-        r"  \  ___  /",
-        r"   '-----'",
-        r"   |NERV |",
-        r"   | uni |",
-        r"  /|     |\\",
-        r" / |     | \\",
-        r"   | LEG |",
-        r"   |_____|",
-    ],
-    # Frame 1 — slight tilt
-    [
-        r"   .-----.",
-        r"  /  - -  \\",
-        r" |    △    |",
-        r"  \  ___  /",
-        r"   '-----'",
-        r"   |NERV |",
-        r"   | uni |",
-        r"  /|     |\\",
-        r" / |     | \\",
-        r"   | LEG |",
-        r"   |_____|",
-    ],
-    # Frame 2 — blink
-    [
-        r"   .-----.",
-        r"  /  _ _  \\",
-        r" |    △    |",
-        r"  \  ___  /",
-        r"   '-----'",
-        r"   |NERV |",
-        r"   | uni |",
-        r"  /|     |\\",
-        r" / |     | \\",
-        r"   | LEG |",
-        r"   |_____|",
-    ],
-    # Frame 3 — look right
-    [
-        r"   .-----.",
-        r"  /   o o \\",
-        r" |     △   |",
-        r"  \  ___  /",
-        r"   '-----'",
-        r"   |NERV |",
-        r"   | uni |",
-        r"  /|     |\\",
-        r" / |     | \\",
-        r"   | LEG |",
-        r"   |_____|",
-    ],
+# ── Shinji frames ─────────────────────────────────────────────────────────────
+SHINJI = [
+    [r"  .-----.",r" / o   o \\",r"|    △    |",r" \  ___  /",r"  '-----'"],
+    [r"  .-----.",r" / -   - \\",r"|    △    |",r" \  ___  /",r"  '-----'"],
+    [r"  .-----.",r" / _   _ \\",r"|    △    |",r" \  ___  /",r"  '-----'"],
+    [r"  .-----.",r" /  o   o\\",r"|     △   |",r" \  ___  /",r"  '-----'"],
+]
+ANIM_SEQ = [0,0,0,0,1,0,0,0,2,0,0,0,0,3,0,0]
+
+EVA = [
+    r"    /\    ",
+    r"   /  \   ",
+    r"  / /\ \  ",
+    r" /_/  \_\ ",
+    r" | /██\ | ",
+    r" |/ ██ \| ",
+    r"    ██    ",
+    r"   /  \   ",
 ]
 
-# EVA Unit-01 silhouette (left panel)
-EVA_SILHOUETTE = [
-    r"      /\      ",
-    r"     /  \     ",
-    r"    / /\ \    ",
-    r"   / /  \ \   ",
-    r"  /_/ /\ \_\  ",
-    r"  |  /  \  |  ",
-    r"  | / ██ \ |  ",
-    r"  |/  ██  \|  ",
-    r"  |   ██   |  ",
-    r"  |  /  \  |  ",
-    r" /| /    \ |\ ",
-    r"/_|/      \|_\\",
-]
+# ── Box drawing helpers ───────────────────────────────────────────────────────
+def box_top(w):    return "┌" + "─"*(w-2) + "┐"
+def box_bot(w):    return "└" + "─"*(w-2) + "┘"
+def box_mid(w):    return "├" + "─"*(w-2) + "┤"
+def box_row(w, s): return "│" + s[:w-2].ljust(w-2) + "│"
 
+def put(row, col, text, end=''):
+    print(term.move(row, max(0, col)) + text, end=end, flush=True)
 
-# ─── Screen 1: NERV Splash ────────────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────────────────────
+# SCREEN 1 — NERV SPLASH
+# ─────────────────────────────────────────────────────────────────────────────
 def draw_splash():
-    fig = Figlet(font='banner3')
-    nerv_art = fig.renderText('NERV').splitlines()
+    fig   = Figlet(font='banner3')
+    art   = fig.renderText('NERV').splitlines()
+    # Trim empty lines
+    art   = [l for l in art if l.strip()]
 
     with term.fullscreen(), term.cbreak(), term.hidden_cursor():
         print(term.clear)
         h, w = term.height, term.width
+        NARROW = w < 50
 
-        # Draw scanline background
+        # Background noise
         for row in range(h):
-            noise = dim_white(random_hex_line(w)[:w])
-            print(term.move(row, 0) + noise, end='', flush=True)
+            put(row, 0, c_dim(noise(w)[:w]))
 
-        # Black center box
-        box_h, box_w = h - 6, min(w - 4, 80)
-        box_x = (w - box_w) // 2
-        box_y = 2
+        # Box
+        bw = min(w - 2, 60) if not NARROW else w
+        bh = h - 4
+        bx = (w - bw) // 2
+        by = 2
 
-        for row in range(box_h):
-            print(term.move(box_y + row, box_x) + term.on_black + " " * box_w + term.normal, end='', flush=True)
+        for row in range(bh):
+            put(by + row, bx, term.on_black + " " * bw + term.normal)
 
-        # Box borders
-        border_line = "█" * box_w
-        print(term.move(box_y,             box_x) + red(border_line), end='', flush=True)
-        print(term.move(box_y + box_h - 1, box_x) + red(border_line), end='', flush=True)
+        put(by,          bx, c_red("█" * bw))
+        put(by + bh - 1, bx, c_red("█" * bw))
 
-        # NERV ASCII logo
-        art_start_y = box_y + 2
-        art_start_x = box_x + (box_w - max(len(l) for l in nerv_art)) // 2
-        for i, line in enumerate(nerv_art[:8]):
-            print(term.move(art_start_y + i, max(0, art_start_x)) + red(line[:box_w]), end='', flush=True)
+        # Logo — scale down on narrow screens
+        max_art_w = max(len(l) for l in art) if art else 1
+        if NARROW and max_art_w > bw - 2:
+            # Fallback: plain big text
+            logo_lines = ["N E R V"]
+        else:
+            logo_lines = art
+
+        lx = bx + max(0, (bw - max(len(l) for l in logo_lines)) // 2)
+        ly = by + 2
+        for i, line in enumerate(logo_lines[:bh - 8]):
+            put(ly + i, lx, c_red(line[:bw]))
 
         # Subtitle
-        subtitle = "GEHIRN ADVANCED RESEARCH"
-        print(term.move(art_start_y + 9, box_x + (box_w - len(subtitle)) // 2)
-              + amber(subtitle), end='', flush=True)
+        sub = "GEHIRN ADVANCED RESEARCH" if not NARROW else "GEHIRN A.R."
+        put(ly + len(logo_lines[:bh-8]) + 1, bx + (bw - len(sub)) // 2, c_amber(sub))
 
-        # Divider
-        divider = "─" * (box_w - 4)
-        print(term.move(art_start_y + 11, box_x + 2) + dark_red(divider), end='', flush=True)
-
-        # Classification info
-        lines_info = [
-            white("  CLASSIFICATION: TOP SECRET // NERV EYES ONLY"),
-            dim_white("  MAGI SYSTEM v3.0  |  TOKYO-3 TACTICAL NETWORK"),
-            dim_white("  \u26a0  UNAUTHORIZED ACCESS WILL BE PROSECUTED  \u26a0"),
+        # Info lines
+        info = [
+            ("CLASSIFICATION: TOP SECRET", c_white),
+            ("MAGI v3.0  |  TOKYO-3 NETWORK", c_dim),
+            ("⚠  UNAUTHORIZED ACCESS ⚠", c_dim),
         ]
-        for i, line in enumerate(lines_info):
-            print(term.move(art_start_y + 13 + i, box_x + 2) + line, end='', flush=True)
+        base = ly + len(logo_lines[:bh-8]) + 3
+        for i, (txt, col) in enumerate(info):
+            short = txt if len(txt) <= bw - 4 else txt[:bw-4]
+            put(base + i, bx + 2, col(short))
 
-        # Blinking SPACE prompt
-        prompt   = "[ PRESS SPACE TO INITIALIZE PILOT INTERFACE ]"
-        prompt_y = box_y + box_h - 4
-        prompt_x = box_x + (box_w - len(prompt)) // 2
+        # Blink prompt
+        prompt   = "[ SPACE ] START" if NARROW else "[ PRESS SPACE TO INITIALIZE PILOT INTERFACE ]"
+        prompt_y = by + bh - 3
+        prompt_x = bx + max(0, (bw - len(prompt)) // 2)
+        stop_ev  = threading.Event()
 
-        stop_blink = threading.Event()
-
-        def blink_loop():
+        def blink():
             state = True
-            while not stop_blink.is_set():
-                txt = amber(prompt) if state else " " * len(prompt)
-                print(term.move(prompt_y, prompt_x) + txt, end='', flush=True)
+            while not stop_ev.is_set():
+                txt = c_amber(prompt) if state else " " * len(prompt)
+                put(prompt_y, prompt_x, txt)
                 state = not state
-                stop_blink.wait(timeout=0.55)
+                stop_ev.wait(0.55)
 
-        t = threading.Thread(target=blink_loop, daemon=True)
+        t = threading.Thread(target=blink, daemon=True)
         t.start()
 
-        # ── Key loop: wait for SPACE ──────────────────────────────────────
         while True:
             key = term.inkey(timeout=0.05)
             if not key:
                 continue
             if is_space(key):
-                stop_blink.set()
-                t.join(timeout=0.7)
-                # Drain any queued input before transitioning
-                while term.inkey(timeout=0):
-                    pass
+                stop_ev.set(); t.join(0.7)
+                while term.inkey(timeout=0): pass
                 break
-            if is_escape(key):
-                stop_blink.set()
-                sys.exit(0)
+            if is_esc(key):
+                stop_ev.set(); sys.exit(0)
 
 
-# ─── Screen 2: Pilot Interface ────────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────────────────────
+# SCREEN 2 — PILOT INTERFACE  (wide ≥ 60 cols: 3-panel | narrow: stacked)
+# ─────────────────────────────────────────────────────────────────────────────
+PILOT_DATA = [
+    ("PILOT",       "IKARI, SHINJI"),
+    ("UNIT",        "EVA-01"),
+    ("SYNC",        "41.3%"),
+    ("A.T.FIELD",   "ACTIVE"),
+    ("STATUS",      "STANDBY"),
+    ("THREAT",      "ANGEL CL.4"),
+]
+MENU = [
+    ("A", "ACTIVATE EVA"),
+    ("S", "SYNC UPLINK"),
+    ("D", "TACTICAL"),
+    ("M", "MAGI QUERY"),
+    ("Q", "EXIT"),
+]
+MENU_MSGS = {
+    'a': ">> ACTIVATING EVA... STANDBY",
+    's': ">> INITIATING SYNC UPLINK...",
+    'd': ">> LOADING TACTICAL DISPLAY...",
+    'm': ">> QUERYING MAGI SYSTEM...",
+}
+
+
+def draw_wide(h, w, frame, feedback, fb_until):
+    """3-panel layout for wide terminals (≥60 cols)."""
+    LW = 14    # left panel width
+    RW = 14    # right panel width
+    CW = w - LW - RW - 2
+    PH = min(h - 4, 24)
+    PY = (h - PH) // 2
+
+    now = time.time()
+
+    # ── Noise rows ──
+    put(0,     0, c_dim(noise(w)[:w]))
+    put(h - 1, 0, c_dim(noise(w)[:w]))
+
+    # ── Left: EVA silhouette ──
+    put(PY,     0, c_red(box_top(LW)))
+    put(PY + 1, 0, c_red(box_row(LW, c_orange(" EVA-01"))))
+    put(PY + 2, 0, c_red(box_mid(LW)))
+    for i, line in enumerate(EVA[:PH - 6]):
+        put(PY + 3 + i, 0, c_red("│") + c_amber(line[:LW-2].ljust(LW-2)) + c_red("│"))
+    for j in range(len(EVA), PH - 6):
+        put(PY + 3 + j, 0, c_red(box_row(LW, "")))
+    put(PY + PH - 3, 0, c_red(box_mid(LW)))
+    put(PY + PH - 2, 0, c_red("│") + c_green(" SYNC:41%" [:LW-2].ljust(LW-2)) + c_red("│"))
+    put(PY + PH - 1, 0, c_red(box_bot(LW)))
+
+    # ── Right: Shinji ──
+    rx = w - RW
+    sh = SHINJI[frame]
+    put(PY,     rx, c_red(box_top(RW)))
+    put(PY + 1, rx, c_red(box_row(RW, c_orange(" PILOT"))))
+    put(PY + 2, rx, c_red(box_mid(RW)))
+    for i, line in enumerate(sh[:PH - 6]):
+        put(PY + 3 + i, rx, c_red("│") + c_white(line[:RW-2].ljust(RW-2)) + c_red("│"))
+    for j in range(len(sh), PH - 6):
+        put(PY + 3 + j, rx, c_red(box_row(RW, "")))
+    put(PY + PH - 3, rx, c_red(box_mid(RW)))
+    put(PY + PH - 2, rx, c_red(box_row(RW, c_amber("[CAM-01]"))))
+    put(PY + PH - 1, rx, c_red(box_bot(RW)))
+
+    # ── Center ──
+    cx = LW + 1
+    put(PY,     cx, c_red(box_top(CW)))
+    put(PY + 1, cx, c_red(box_row(CW, c_orange(" NERV // PILOT INTERFACE v2.0"))))
+    put(PY + 2, cx, c_red(box_mid(CW)))
+
+    for i, (k, v) in enumerate(PILOT_DATA):
+        row = f" {k:<10}: {v}"
+        col = c_amber if i % 2 == 0 else c_white
+        put(PY + 3 + i, cx, c_red("│") + col(row[:CW-2].ljust(CW-2)) + c_red("│"))
+
+    sep = PY + 3 + len(PILOT_DATA)
+    put(sep, cx, c_red(box_mid(CW)))
+    put(sep + 1, cx, c_red(box_row(CW, c_orange(" COMMANDS:"))))
+    for j, (key, label) in enumerate(MENU):
+        put(sep + 2 + j, cx, c_red(box_row(CW, c_white(f"  [{key}] {label}"))))
+
+    used = sep + 2 + len(MENU)
+    fb   = feedback[0] if now < fb_until[0] else ""
+    put(used, cx, c_red(box_row(CW, c_bright(fb) if fb else "")))
+    used += 1
+
+    bot = PY + PH - 1
+    for row in range(used, bot):
+        put(row, cx, c_red(box_row(CW, "")))
+    put(bot, cx, c_red(box_bot(CW)))
+
+    # Ticker
+    tick = "▐▌" if int(now * 2) % 2 == 0 else "░░"
+    bar  = f" MAGI ONLINE {tick}  |  THREAT: NONE  |  T+{int(now)%9999:04d}s "
+    put(h - 2, 0, c_amber(bar[:w].ljust(w)))
+
+
+def draw_narrow(h, w, frame, feedback, fb_until):
+    """Single-column stacked layout for narrow terminals (phones)."""
+    now = time.time()
+    sh  = SHINJI[frame]
+
+    # ── Header ──
+    title = "NERV // PILOT INTERFACE"[:w]
+    put(0, (w - len(title)) // 2, c_red(title))
+    put(1, 0, c_red("─" * w))
+
+    row = 2
+
+    # ── Pilot data (compact 2-col) ──
+    for k, v in PILOT_DATA:
+        line = f"{k}:{v}"[:w].ljust(w)
+        put(row, 0, c_amber(line))
+        row += 1
+
+    put(row, 0, c_dark_red("─" * w)); row += 1
+
+    # ── Shinji (small, right-aligned) ──
+    max_sh_w = max(len(l) for l in sh)
+    sx = max(0, w - max_sh_w - 1)
+    for i, line in enumerate(sh):
+        if row + i >= h - 6:
+            break
+        put(row + i, sx, c_white(line[:w - sx]))
+    row += len(sh) + 1
+
+    put(row, 0, c_dark_red("─" * w)); row += 1
+
+    # ── Menu ──
+    for key, label in MENU:
+        if row >= h - 3:
+            break
+        put(row, 0, c_white(f"[{key}] {label}"[:w]))
+        row += 1
+
+    # ── Feedback ──
+    fb = feedback[0] if now < fb_until[0] else ""
+    put(h - 3, 0, c_bright(fb[:w].ljust(w)))
+
+    # ── Ticker ──
+    put(h - 2, 0, c_dim("─" * w))
+    tick = "▐▌" if int(now * 2) % 2 == 0 else "░░"
+    bar  = f"{tick} T+{int(now)%9999:04d}s"
+    put(h - 1, 0, c_amber(bar[:w].ljust(w)))
+
+
 def draw_pilot_interface():
-    frame_idx   = 0
-    anim_frames = [0, 0, 0, 0, 1, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 3, 0, 0]
-    anim_step   = 0
-    last_anim   = time.time()
-
-    pilot_data = [
-        ("PILOT",        "IKARI, SHINJI"),
-        ("UNIT",         "EVA-01 [PURPLE]"),
-        ("SYNC RATIO",   "41.3%"),
-        ("A.T. FIELD",   "ACTIVE"),
-        ("STATUS",       "STANDBY"),
-        ("THREAT LEVEL", "ANGEL — CLASS 4"),
-    ]
-
-    menu_items = [
-        "[ A ]  ACTIVATE EVA UNIT",
-        "[ S ]  SYNC UPLINK",
-        "[ D ]  TACTICAL DISPLAY",
-        "[ M ]  MAGI QUERY",
-        "[ Q ]  ABORT / EXIT",
-    ]
-
-    # Feedback message shown in the center panel
-    feedback      = [""]
-    feedback_until = [0.0]
+    anim_step = 0
+    last_anim = time.time()
+    feedback  = [""]
+    fb_until  = [0.0]
 
     with term.fullscreen(), term.cbreak(), term.hidden_cursor():
         print(term.clear)
 
         while True:
-            h, w = term.height, term.width
-            now  = time.time()
+            h, w   = term.height, term.width
+            now    = time.time()
+            NARROW = w < 60
 
-            # ── Animation frame advance ───────────────────────────────────
             if now - last_anim > 0.18:
-                anim_step = (anim_step + 1) % len(anim_frames)
-                frame_idx = anim_frames[anim_step]
+                anim_step = (anim_step + 1) % len(ANIM_SEQ)
                 last_anim = now
+            frame = ANIM_SEQ[anim_step]
 
-            # ── Background noise strips ───────────────────────────────────
-            for row in [0, h - 1]:
-                print(term.move(row, 0) + dim_white(random_hex_line(w)[:w]), end='', flush=True)
+            if NARROW:
+                draw_narrow(h, w, frame, feedback, fb_until)
+            else:
+                draw_wide(h, w, frame, feedback, fb_until)
 
-            # ── Left panel: EVA silhouette ────────────────────────────────
-            panel_l_w = 18
-            panel_h   = min(h - 2, 22)
-            panel_y   = (h - panel_h) // 2
-
-            print(term.move(panel_y,     0) + red("┌" + "─" * (panel_l_w - 2) + "┐"), end='', flush=True)
-            print(term.move(panel_y + 1, 0) + red("│") + orange(" EVA-01 STATUS ") + red("│"), end='', flush=True)
-            print(term.move(panel_y + 2, 0) + red("├" + "─" * (panel_l_w - 2) + "┤"), end='', flush=True)
-
-            for i, line in enumerate(EVA_SILHOUETTE[:panel_h - 7]):
-                padded = line.ljust(panel_l_w - 2)[:panel_l_w - 2]
-                print(term.move(panel_y + 3 + i, 0) + red("│") + amber(padded) + red("│"), end='', flush=True)
-            for j in range(len(EVA_SILHOUETTE), panel_h - 7):
-                print(term.move(panel_y + 3 + j, 0) + red("│" + " " * (panel_l_w - 2) + "│"), end='', flush=True)
-
-            print(term.move(panel_y + panel_h - 4, 0) + red("├" + "─" * (panel_l_w - 2) + "┤"), end='', flush=True)
-            sync = "SYNC: 41.3%"
-            print(term.move(panel_y + panel_h - 3, 0) + red("│") + green(f" {sync:<{panel_l_w-3}}") + red("│"), end='', flush=True)
-            print(term.move(panel_y + panel_h - 2, 0) + red("│") + bright_red(f" ██████░░░░{' ' * (panel_l_w - 13)}") + red("│"), end='', flush=True)
-            print(term.move(panel_y + panel_h - 1, 0) + red("└" + "─" * (panel_l_w - 2) + "┘"), end='', flush=True)
-
-            # ── Right panel: Animated Shinji ──────────────────────────────
-            panel_r_w = 18
-            panel_r_x = w - panel_r_w
-            shinji    = SHINJI_FRAMES[frame_idx]
-
-            print(term.move(panel_y,     panel_r_x) + red("┌" + "─" * (panel_r_w - 2) + "┐"), end='', flush=True)
-            print(term.move(panel_y + 1, panel_r_x) + red("│") + orange("  PILOT FEED   ") + red("│"), end='', flush=True)
-            print(term.move(panel_y + 2, panel_r_x) + red("├" + "─" * (panel_r_w - 2) + "┤"), end='', flush=True)
-
-            for i, line in enumerate(shinji[:panel_h - 6]):
-                padded = line.ljust(panel_r_w - 2)[:panel_r_w - 2]
-                print(term.move(panel_y + 3 + i, panel_r_x) + red("│") + white(padded) + red("│"), end='', flush=True)
-            for j in range(len(shinji), panel_h - 6):
-                print(term.move(panel_y + 3 + j, panel_r_x) + red("│" + " " * (panel_r_w - 2) + "│"), end='', flush=True)
-
-            print(term.move(panel_y + panel_h - 3, panel_r_x) + red("├" + "─" * (panel_r_w - 2) + "┤"), end='', flush=True)
-            cam_label = " [CAM 01-LIVE] "
-            print(term.move(panel_y + panel_h - 2, panel_r_x) + red("│") + amber(cam_label[:panel_r_w-2].ljust(panel_r_w-2)) + red("│"), end='', flush=True)
-            print(term.move(panel_y + panel_h - 1, panel_r_x) + red("└" + "─" * (panel_r_w - 2) + "┘"), end='', flush=True)
-
-            # ── Center panel ──────────────────────────────────────────────
-            cx    = panel_l_w + 1
-            cw    = w - panel_l_w - panel_r_w - 2
-            cy    = panel_y
-            title = "NERV // PILOT INTERFACE v2.0"
-
-            print(term.move(cy,     cx) + red("┌" + "─" * (cw - 2) + "┐"), end='', flush=True)
-            print(term.move(cy + 1, cx) + red("│") + orange(f" {title:<{cw-3}}") + red("│"), end='', flush=True)
-            print(term.move(cy + 2, cx) + red("├" + "─" * (cw - 2) + "┤"), end='', flush=True)
-
-            for i, (k, v) in enumerate(pilot_data):
-                row_str = f" {k:<14}: {v}"
-                row_str = row_str[:cw - 2].ljust(cw - 2)
-                color   = amber if i % 2 == 0 else white
-                print(term.move(cy + 3 + i, cx) + red("│") + color(row_str) + red("│"), end='', flush=True)
-
-            print(term.move(cy + 3 + len(pilot_data), cx) + red("├" + "─" * (cw - 2) + "┤"), end='', flush=True)
-
-            menu_y     = cy + 4 + len(pilot_data)
-            menu_title = " COMMAND INTERFACE:"
-            print(term.move(menu_y, cx) + red("│") + orange(menu_title.ljust(cw - 2)) + red("│"), end='', flush=True)
-
-            for j, item in enumerate(menu_items):
-                item_str = f"  {item}".ljust(cw - 2)[:cw - 2]
-                print(term.move(menu_y + 1 + j, cx) + red("│") + white(item_str) + red("│"), end='', flush=True)
-
-            used = menu_y + 1 + len(menu_items)
-            bot  = panel_y + panel_h - 1
-
-            # Feedback row
-            fb_text = feedback[0] if now < feedback_until[0] else ""
-            fb_str  = fb_text[:cw - 2].ljust(cw - 2)
-            fb_color = bright_red if fb_text else lambda s: s
-            if used < bot:
-                print(term.move(used, cx) + red("│") + fb_color(fb_str) + red("│"), end='', flush=True)
-                used += 1
-
-            for row in range(used, bot):
-                print(term.move(row, cx) + red("│") + " " * (cw - 2) + red("│"), end='', flush=True)
-
-            print(term.move(bot, cx) + red("└" + "─" * (cw - 2) + "┘"), end='', flush=True)
-
-            # Bottom ticker
-            tick   = "▐▌" if int(now * 2) % 2 == 0 else "░░"
-            status = f" MAGI ONLINE {tick}  |  ANGEL ALERT: NONE  |  T+{int(now) % 9999:04d}s "
-            print(term.move(h - 2, 0) + amber(status[:w].ljust(w)), end='', flush=True)
-
-            # ── Key handling ──────────────────────────────────────────────
             key = term.inkey(timeout=0.05)
             if not key:
                 continue
+            ch = key_char(key)
 
-            ch = key_char(key)  # None for sequences, lowercase char for plain keys
-
-            if ch == 'q' or is_escape(key):
+            if ch == 'q' or is_esc(key):
                 break
-            elif ch in ('a', 's', 'd', 'm'):
-                msgs = {
-                    'a': "  >> ACTIVATING EVA UNIT... STANDBY",
-                    's': "  >> INITIATING SYNC UPLINK...",
-                    'd': "  >> LOADING TACTICAL DISPLAY...",
-                    'm': "  >> QUERYING MAGI SYSTEM...",
-                }
-                feedback[0]       = msgs[ch]
-                feedback_until[0] = now + 2.0
+            elif ch in MENU_MSGS:
+                feedback[0] = MENU_MSGS[ch]
+                fb_until[0] = now + 2.5
 
 
-# ─── Entry point ─────────────────────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────────────────────
 def main():
     try:
         draw_splash()
@@ -371,7 +346,7 @@ def main():
         pass
     finally:
         print(term.clear + term.normal)
-        print(term.color_rgb(200, 20, 20) + "\n  [NERV] Session terminated.\n" + term.normal)
+        print(c_red("\n  [NERV] Session terminated.\n"))
 
 if __name__ == "__main__":
     main()
