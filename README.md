@@ -1,49 +1,86 @@
-# 🔴 NERV Terminal Interface
+# NERV Terminal
 
-> *"God's in his heaven, all's right with the world."*
+> *"God's in His heaven. All's right with the world."*
 
-A Neon Genesis Evangelion themed TUI launcher built with Python + `blessed`.
-Braille ASCII art sourced from [emojicombos.com/evangelion-ascii-art](https://emojicombos.com/evangelion-ascii-art).
+A Neon Genesis Evangelion themed TUI that runs entirely in your terminal.  
+Inspired by the MAGI supercomputer system — CASPAR, BALTHASAR, MELCHIOR.
 
-[![CI](https://github.com/KotalaKishanReddy/nerv-terminal/actions/workflows/ci.yml/badge.svg)](https://github.com/KotalaKishanReddy/nerv-terminal/actions)
-[![PyPI](https://img.shields.io/pypi/v/nerv-terminal)](https://pypi.org/project/nerv-terminal/)
+---
 
-## Install
+## One-line install (Linux / macOS)
 
 ```bash
-pip install nerv-terminal
+curl -fsSL https://raw.githubusercontent.com/KotalaKishanReddy/nerv-terminal/main/install.sh | bash
+```
+
+Then run:
+```bash
 nerv
 ```
 
-Or run from source:
+> Updates are **automatic** — every launch silently checks GitHub for a newer version and hot-swaps it before starting.
+
+---
+
+## Manual install (any OS)
 
 ```bash
-git clone https://github.com/KotalaKishanReddy/nerv-terminal
+git clone https://github.com/KotalaKishanReddy/nerv-terminal.git
 cd nerv-terminal
-pip install -e .
-nerv
+pip install -r requirements.txt
+python run.py          # auto-update then launch
+# or directly:
+python nerv.py
 ```
 
-## Controls
+## Windows (PowerShell)
 
-| Key | Action |
-|-----|--------|
-| `SPACE` | Splash → Pilot Interface |
-| `Q` / `ESC` | Quit |
+```powershell
+git clone https://github.com/KotalaKishanReddy/nerv-terminal.git
+cd nerv-terminal
+pip install -r requirements.txt
+python run.py
+```
 
-## Requirements
+---
+
+## What it does
+
+| Screen | Description |
+|---|---|
+| **NERV Splash** | Full block-logo, braille EVA art, blinking amber prompt |
+| **Password gate** | Dot-masked input; wrong → `W` bruteforce / `R` retry |
+| **MAGI Bruteforce** | 10-min live bars, CASPAR/BALTHASAR/MELCHIOR votes, hex stream; **ESC locked**; rick-rolls at 10:00 |
+| **P & Q entry** | RSA prime inputs → AES-CBC decrypt of `Encrypted.txt` |
+| **Decrypted view** | Shows plaintext output |
+| **Terms & Conditions** | YES → Instagram T&C (Chinese); NO → YouTube T&C (Japanese) |
+| **YES / NO** | Both paths end with a rick-roll |
+
+**Password:** `21SEP`
+
+---
+
+## Dependencies
 
 - Python 3.8+
-- Truecolor terminal: Kitty · Alacritty · WezTerm · Windows Terminal (WSL)
+- `blessed` — terminal rendering
+- `pycryptodome` — AES decrypt
 
-## Release to PyPI
+---
 
-```bash
-git tag v1.0.0
-git push origin v1.0.0
+## Auto-update architecture
+
+```
+nerv (launcher)
+  └─ run.py
+       ├─ nerv_terminal/updater.py  ← polls GitHub API (max 1×/hour)
+       │       └─ if new SHA → downloads nerv.py → hot-swaps it
+       └─ os.execv → nerv.py        ← always runs latest
 ```
 
-Set up PyPI Trusted Publisher at https://pypi.org/manage/account/publishing/
+No background daemons. No cron jobs. Pure Python stdlib network call.
+
+---
 
 ## License
 

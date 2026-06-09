@@ -1,2 +1,2 @@
-"""NERV Terminal Interface package."""
-__version__ = "1.0.0"
+"""nerv-terminal package — Neon Genesis Evangelion themed TUI."""
+__version__ = '2.0.0'

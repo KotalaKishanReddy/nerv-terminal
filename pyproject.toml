@@ -4,23 +4,22 @@ build-backend = "setuptools.backends.legacy:build"
 
 [project]
 name = "nerv-terminal"
-version = "1.0.0"
-description = "Neon Genesis Evangelion themed TUI launcher for your terminal"
+version = "2.0.0"
+description = "Neon Genesis Evangelion themed TUI — NERV HQ in your terminal"
 readme = "README.md"
 license = { text = "MIT" }
 requires-python = ">=3.8"
-keywords = ["evangelion", "nerv", "tui", "terminal", "ascii-art", "cli"]
-classifiers = [
-    "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License",
-    "Operating System :: OS Independent",
-    "Environment :: Console",
-]
-dependencies = ["blessed>=1.20.0"]
+dependencies = ["blessed>=1.20", "pycryptodome>=3.18"]
+
+[[project.authors]]
+name = "KotalaKishanReddy"
 
 [project.scripts]
-nerv = "nerv_terminal.nerv:main"
+nerv = "nerv_terminal.run:main"
 
 [project.urls]
-Homepage = "https://github.com/KotalaKishanReddy/nerv-terminal"
-Repository = "https://github.com/KotalaKishanReddy/nerv-terminal"
+"Homepage" = "https://github.com/KotalaKishanReddy/nerv-terminal"
+"Bug Tracker" = "https://github.com/KotalaKishanReddy/nerv-terminal/issues"
+
+[tool.setuptools.packages.find]
+include = ["nerv_terminal*"]

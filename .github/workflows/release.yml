@@ -1,0 +1,43 @@
+name: Auto Release
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'nerv_terminal/__init__.py'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Extract version
+        id: ver
+        run: |
+          VER=$(python3 -c "import re; print(re.search(r\"__version__ = '([^']+)'\", open('nerv_terminal/__init__.py').read()).group(1))")
+          echo "version=$VER" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.ver.outputs.version }}
+          name: NERV Terminal v${{ steps.ver.outputs.version }}
+          body: |
+            ## NERV Terminal v${{ steps.ver.outputs.version }}
+
+            **Install / update in one line:**
+            ```bash
+            curl -fsSL https://raw.githubusercontent.com/KotalaKishanReddy/nerv-terminal/main/install.sh | bash
+            ```
+
+            All existing installs auto-update on next launch.
+          files: |
+            nerv.py
+            run.py
+            install.sh
+            requirements.txt
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
