@@ -3,13 +3,17 @@
 NERV Terminal — Neon Genesis Evangelion themed terminal launcher
 Usage: python3 nerv.py
 Dependencies: blessed pyfiglet
+Optional external tool: chafa (for final GIF playback)
 """
 
+import os
 import sys
 import time
 import random
+import shutil
+import tempfile
 import threading
-import webbrowser
+import subprocess
 from blessed import Terminal
 from pyfiglet import Figlet
 
@@ -31,7 +35,7 @@ def c_yellow(s): return term.color_rgb(240, 230, 50)  + s + term.normal
 # ── Config ────────────────────────────────────────────────────────────────────
 ACCESS_CODE    = "NERV0"
 BRUTE_SECONDS  = 10 * 60
-FINAL_URL      = "https://watchbutdonotlearn.github.io/"
+FINAL_GIF_URL  = "https://i.redd.it/fktuppkre7p51.gif"
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 def is_space(k):     return (not k.is_sequence) and str(k) == ' '
@@ -57,6 +61,10 @@ def box_bot(w):
 
 def box_sep(w):
     return '├' + '─' * (w - 2) + '┤'
+
+def clear_key_buffer():
+    while term.inkey(timeout=0):
+        pass
 
 # ─────────────────────────────────────────────────────────────────────────────
 # SCREEN 1 — SPLASH
@@ -127,8 +135,7 @@ def draw_splash():
             if is_space(key):
                 stop_ev.set()
                 t.join(0.7)
-                while term.inkey(timeout=0):
-                    pass
+                clear_key_buffer()
                 break
             if is_esc(key):
                 stop_ev.set()
@@ -387,8 +394,43 @@ def draw_brute_force():
                 return True
 
 # ─────────────────────────────────────────────────────────────────────────────
-# SCREEN 3 — FINAL SECRET PROMPT
+# SCREEN 3 — FINAL SECRET PROMPT + GIF PAYLOAD
 # ─────────────────────────────────────────────────────────────────────────────
+def play_final_gif_payload():
+    chafa = shutil.which('chafa')
+    curl = shutil.which('curl')
+    if not chafa or not curl:
+        print(term.clear)
+        print(c_bright('\n  Missing dependency. Install chafa and curl to render the terminal GIF.\n'))
+        print(c_amber('  Ubuntu/Debian: sudo apt install chafa curl\n'))
+        print(c_amber('  Arch: sudo pacman -S chafa curl\n'))
+        print(c_amber('  macOS: brew install chafa curl\n'))
+        print(c_green('  hehehehe\n'))
+        return
+
+    fd, gif_path = tempfile.mkstemp(prefix='nerv-final-', suffix='.gif')
+    os.close(fd)
+    try:
+        subprocess.run(['curl', '-L', FINAL_GIF_URL, '-o', gif_path], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        print(term.clear)
+        print(c_green('hehehehe\n'))
+        width = max(40, term.width - 2)
+        height = max(12, term.height - 4)
+        subprocess.run([
+            chafa,
+            '--animate', 'on',
+            '--clear',
+            '--symbols', 'block+border+space',
+            '--size', f'{width}x{height}',
+            gif_path,
+        ], check=False)
+    finally:
+        try:
+            os.remove(gif_path)
+        except OSError:
+            pass
+
+
 def draw_final_secret_prompt():
     with term.fullscreen(), term.cbreak(), term.hidden_cursor():
         print(term.clear)
@@ -424,10 +466,12 @@ def draw_final_secret_prompt():
                 return False
             if is_enter(key):
                 put(by + 9, bx, c_red('│') + c_green('  Launching final secret message...'.ljust(bw - 2)) + c_red('│'))
-                put(by + 10, bx, c_red('│') + c_muted(f'  {FINAL_URL}'[:bw - 2].ljust(bw - 2)) + c_red('│'))
-                webbrowser.open(FINAL_URL)
-                time.sleep(1.2)
-                return True
+                put(by + 10, bx, c_red('│') + c_muted('  payload: terminal gif / text: hehehehe'.ljust(bw - 2)) + c_red('│'))
+                time.sleep(1.0)
+                break
+
+    play_final_gif_payload()
+    return True
 
 # ─────────────────────────────────────────────────────────────────────────────
 def main():
